@@ -1,25 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
+import { BoardRepository } from './board.repository';
 
 @Injectable()
 export class BoardsService {
-  create(createBoardDto: CreateBoardDto) {
-    return 'This action adds a new board';
+  constructor(private boardRepository: BoardRepository) {}
+
+  async create(createBoardDto: CreateBoardDto) {
+    return this.boardRepository.create(createBoardDto);
   }
 
-  findAll() {
-    return `This action returns all boards`;
+  async createBulkContents(createBoardDto: CreateBoardDto) {
+    return this.boardRepository.createMultiData(createBoardDto);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} board`;
+  async getAllBoards() {
+    return this.boardRepository.findAll();
   }
 
-  update(id: number, updateBoardDto: UpdateBoardDto) {
-    return `This action updates a #${id} board`;
+  async findOne(id: number) {
+    return this.boardRepository.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} board`;
+  async update(id: number, updateBoardDto: UpdateBoardDto) {
+    return this.boardRepository.update(id, updateBoardDto);
+  }
+
+  async remove(id: number) {
+    return this.boardRepository.remove(id);
   }
 }

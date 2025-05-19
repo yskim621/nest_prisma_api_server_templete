@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { PrismaClient, Prisma } from '../../prisma/generated/mindsai_platform';
 
+
 type PrismaQueryEvent = {
   timestamp: Date;
   query: string;

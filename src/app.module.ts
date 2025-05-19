@@ -9,7 +9,6 @@ import { UtilsModule } from './utils/utils.module'; // Global module
 import { RouterModule } from '@nestjs/core';
 import { Modules } from './modules/modules';
 import { MindsTrafficLightModule } from './routes/minds-traffic-light.module';
-import { AuthModule } from './modules/mtl/auth/auth.module';
 import { MetricsController } from './metrics.controller';
 import { MetricMiddleware, Pm2MetricsService } from './middlewares/metric.middleware';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
@@ -28,11 +27,12 @@ import { LoggerMiddleware } from './middlewares/logger.middleware';
         },
       ]),
     ),
+    Modules,
     PrismaModule,
     RedisModule,
     UtilsModule,
-    Modules,
-    AuthModule,
+    // End-point registering
+    MindsTrafficLightModule,
   ],
   controllers: [AppController, MetricsController],
   providers: [AppService, MindsaiPrismaService, MetricMiddleware, Pm2MetricsService],

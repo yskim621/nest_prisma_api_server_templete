@@ -11,9 +11,14 @@ export class BoardsController {
     return this.boardsService.create(createBoardDto);
   }
 
+  @Post('/bulk-contents')
+  createBulk(@Body() createBoardDto: CreateBoardDto) {
+    return this.boardsService.createBulkContents(createBoardDto);
+  }
+
   @Get()
   findAll() {
-    return this.boardsService.findAll();
+    return this.boardsService.getAllBoards();
   }
 
   @Get(':id')
