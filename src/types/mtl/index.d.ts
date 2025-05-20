@@ -3,3 +3,9 @@ enum contentStatus {
   HIDDEN = 'HIDDEN',
   DELETED = 'DELETED',
 }
+
+enum accountStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  DELETED = 'DELETED',
+}

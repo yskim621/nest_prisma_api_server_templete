@@ -59,17 +59,14 @@ export class BoardRepository {
         throw new NotFoundException();
       }
 
-      const foundBoardData = await this.findOne(id);
-      if (!foundBoardData) {
-        throw new NotFoundException();
-      }
-
-      if (foundUserData.name !== '휴먼계정') {
+      if (foundUserData.account_status === accountStatus.ACTIVE) {
         return;
       }
 
-      foundBoardData.status = contentStatus.HIDDEN;
-      await tx.board.update({ where: { id }, data });
+      await tx.board.update({
+        where: { id },
+        data: { status: contentStatus.HIDDEN },
+      });
     });
   }
 

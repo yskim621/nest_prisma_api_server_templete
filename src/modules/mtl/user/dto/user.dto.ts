@@ -15,6 +15,10 @@ export class UserDto {
   @IsOptional()
   @IsString()
   name?: string;
+
+  @ApiProperty()
+  @IsString()
+  accountStatus: accountStatus;
 }
 
 export class CreateUserDto {
@@ -31,6 +35,10 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   name?: string;
+
+  @ApiProperty()
+  @IsString()
+  accountStatus: accountStatus;
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {}
