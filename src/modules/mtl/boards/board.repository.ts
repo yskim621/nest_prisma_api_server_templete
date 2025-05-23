@@ -59,7 +59,7 @@ export class BoardRepository {
         throw new NotFoundException();
       }
 
-      if (foundUserData.account_status === accountStatus.ACTIVE) {
+      if (foundUserData.accountStatus === accountStatus.ACTIVE) {
         return;
       }
 
