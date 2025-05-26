@@ -11,7 +11,7 @@ export class CreateBoardDto {
   description: string;
 
   @ApiProperty()
-  status: contentStatus;
+  status: ContentStatus;
 
   @ApiProperty()
   @IsNumber()

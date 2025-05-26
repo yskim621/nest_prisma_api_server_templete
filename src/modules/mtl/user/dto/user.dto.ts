@@ -37,8 +37,7 @@ export class CreateUserDto {
   name?: string;
 
   @ApiProperty()
-  @IsString()
-  accountStatus: accountStatus;
+  accountStatus: AccountStatus;
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {}

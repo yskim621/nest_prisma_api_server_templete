@@ -52,22 +52,26 @@ export class BoardRepository {
   }
 
   async update(id: number, data: UpdateBoardDto) {
-    // 고급 트렌젝션 => 각 트렌잭션 별로 전/후 처리가 가능
-    await this.prisma.$transaction(async (tx) => {
-      const foundUserData = await tx.user.findUnique({ where: { id: data.userId } }); // Throws if not found
-      if (!foundUserData) {
-        throw new NotFoundException();
-      }
+    try {
+      // 고급 트렌젝션 => 각 트렌잭션 별로 전/후 처리가 가능
+      await this.prisma.$transaction(async (tx) => {
+        const foundUserData = await tx.user.findUnique({ where: { id: data.userId } }); // Throws if not found
+        if (!foundUserData) {
+          throw new NotFoundException();
+        }
 
-      if (foundUserData.accountStatus === accountStatus.ACTIVE) {
-        return;
-      }
+        if (foundUserData.accountStatus === AccountStatus.ACTIVE) {
+          return;
+        }
 
-      await tx.board.update({
-        where: { id },
-        data: { status: contentStatus.HIDDEN },
+        await tx.board.update({
+          where: { id },
+          data: { status: ContentStatus.HIDDEN },
+        });
       });
-    });
+    } catch (error) {
+      console.error('Transaction failed. Rolled back.', error);
+    }
   }
 
   async remove(id: number) {

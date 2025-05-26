@@ -8,18 +8,13 @@ datasource db {
   url      = env("PRISMA_DATABASE_URL")
 }
 
-//관심사 분리 (Separation of Concerns)
-// **Prisma 모델 (애플리케이션 계층)**은 개발자가 다루는 비즈니스 로직 중심의 코드 구조이므로, 자바스크립트/타입스크립트 등과 일관되게 camelCase, PascalCase 사용하는 것이 자연스러움
-// 반면, **DB 스키마 (데이터 계층)**는 일반적으로 snake_case를 사용하며, 대부분의 DBMS (특히 PostgreSQL, MySQL 등)는 snake_case가 표준
-// javaScript, TypeScript, Java, C#, Python 등 대부분의 현대 언어는 변수명/필드명을 camelCase로 쓰는 것이 관례
-// Prisma 스키마도 이와 일관되게 작성하면 IDE 자동완성, 가독성, 유지보수성 향상
 model User {
-  id            Int       @id @default(autoincrement())
-  email         String?   @unique(map: "user_pk") @db.VarChar(255)
-  password      String?   @db.VarChar(255)
-  name          String?   @db.VarChar(30)
-  createdAt     DateTime? @default(dbgenerated("(now())")) @map("created_at") @db.Timestamp(0)
-  accountStatus String?   @default("ACTIVE") @map("account_status") @db.VarChar(30)
+  id            Int                @id @default(autoincrement())
+  email         String?            @unique(map: "user_pk") @db.VarChar(255)
+  password      String?            @db.VarChar(255)
+  name          String?            @db.VarChar(30)
+  createdAt     DateTime?          @default(dbgenerated("(now())")) @map("created_at") @db.Timestamp(0)
+  accountStatus UserAccountStatus? @default(ACTIVE) @map("account_status")
   board         Board[]
 
   @@map("user")
@@ -35,4 +30,10 @@ model Board {
 
   @@index([userId], map: "board_user_id_fk")
   @@map("board")
+}
+
+enum UserAccountStatus {
+  ACTIVE
+  INACTIVE
+  DELETED
 }
