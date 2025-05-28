@@ -9,12 +9,12 @@ datasource db {
 }
 
 model User {
-  id            Int                @id @default(autoincrement())
-  email         String?            @unique(map: "user_pk") @db.VarChar(255)
-  password      String?            @db.VarChar(255)
-  name          String?            @db.VarChar(30)
-  createdAt     DateTime?          @default(dbgenerated("(now())")) @map("created_at") @db.Timestamp(0)
-  accountStatus UserAccountStatus? @default(ACTIVE) @map("account_status")
+  id            Int       @id @default(autoincrement())
+  email         String?   @unique(map: "user_pk") @db.VarChar(255)
+  password      String?   @db.VarChar(255)
+  name          String?   @db.VarChar(30)
+  createdAt     DateTime? @default(dbgenerated("(now())")) @map("created_at") @db.Timestamp(0)
+  accountStatus String?   @default("ACTIVE") @map("account_status") @db.VarChar(20)
   board         Board[]
 
   @@map("user")
@@ -30,10 +30,4 @@ model Board {
 
   @@index([userId], map: "board_user_id_fk")
   @@map("board")
-}
-
-enum UserAccountStatus {
-  ACTIVE
-  INACTIVE
-  DELETED
 }
