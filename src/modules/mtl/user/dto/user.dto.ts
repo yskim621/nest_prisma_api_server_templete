@@ -18,7 +18,7 @@ export class UserDto {
 
   @ApiProperty()
   @IsString()
-  accountStatus: accountStatus;
+  accountStatus: AccountStatus;
 }
 
 export class CreateUserDto {
