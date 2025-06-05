@@ -12,6 +12,7 @@ import { MindsTrafficLightModule } from './routes/minds-traffic-light.module';
 import { MetricsController } from './metrics.controller';
 import { MetricMiddleware, Pm2MetricsService } from './middlewares/metric.middleware';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { LoggerMiddleware } from './middlewares/logger.middleware';
     UtilsModule,
     // End-point registering
     MindsTrafficLightModule,
+    HealthModule,
   ],
   controllers: [AppController, MetricsController],
   providers: [AppService, MindsaiPrismaService, MetricMiddleware, Pm2MetricsService],

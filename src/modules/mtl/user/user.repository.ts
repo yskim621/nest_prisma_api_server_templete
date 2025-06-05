@@ -12,7 +12,7 @@ export class UserRepository {
   }
 
   async findAll() {
-    return this.prisma.user.findMany({ select: { id: true, email: true, name: true, created_at: true } });
+    return this.prisma.user.findMany({ select: { id: true, email: true, name: true, createdAt: true } });
   }
 
   async findOne(id: number) {

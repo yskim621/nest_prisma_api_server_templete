@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@google-cloud/firestore": "^7.11.0",
+    "@nestjs/axios": "^4.0.0",
     "@nestjs/common": "^11.1.0",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -36,6 +37,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/platform-socket.io": "^11.1.0",
     "@nestjs/swagger": "^11.2.0",
+    "@nestjs/terminus": "^11.0.0",
     "@prisma/client": "^6.7.0",
     "@types/helmet": "^4.0.0",
     "@types/node": "^22.15.14",
