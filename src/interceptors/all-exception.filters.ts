@@ -45,9 +45,12 @@ export class NotFoundFilter implements ExceptionFilter {
     const status = exception.getStatus();
 
     const result: CommonResponse<null> = {
-      success: false,
-      message: 'Not Found Exception',
-      code: status,
+      isSuccess: false,
+      code: '5000',
+      message: 'this request is not processed',
+      resSystem: 'c',
+      comSystem: 'central-common',
+      resTime: new Date(),
       data: null,
     };
 
@@ -89,9 +92,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
     }
 
     const result: CommonResponse<null> = {
-      success: false,
+      isSuccess: false,
+      code: '5000',
       message: error,
-      code: status,
+      resSystem: 'c',
+      comSystem: 'central-common',
+      resTime: new Date(),
       data: null,
     };
 

@@ -16,9 +16,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const errorMessage = typeof message === 'string' ? message : ((message as any)?.message ?? '알 수 없는 에러');
 
     const result: CommonResponse<null> = {
-      success: false,
+      isSuccess: false,
+      code: '5000',
       message: errorMessage,
-      code: status,
+      resSystem: 'c',
+      comSystem: 'central-common',
+      resTime: new Date(),
       data: null,
     };
 

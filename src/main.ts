@@ -3,14 +3,13 @@ import { AppModule } from './app.module';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { urlencoded, json } from 'body-parser';
 import { EveryInterceptor } from './interceptors/every.interceptor';
-// import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ResponseInterceptor } from './interceptors/response.interceptor';
 import { WinstonLoggerService } from './middlewares/logger.middleware';
 import { SERVICE_DOMAIN, PORT, REDIS_HOST, REDIS_PORT } from './environment';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { MindsTrafficLightModule } from './routes/minds-traffic-light.module';
+import { MindsSignalModule } from './routes/minds-signal.module';
 import { AllExceptionsFilter } from './interceptors/all-exception.filters';
 import helmet from 'helmet';
 
@@ -91,9 +90,9 @@ async function bootstrap() {
     })
     .build();
   const documentMtl = SwaggerModule.createDocument(app, SwaggerUserOptions, {
-    include: [MindsTrafficLightModule],
+    include: [MindsSignalModule],
   });
-  SwaggerModule.setup('api/mtl', app, documentMtl);
+  SwaggerModule.setup('api/msl', app, documentMtl);
 
   await app.listen(process.env.PORT);
 

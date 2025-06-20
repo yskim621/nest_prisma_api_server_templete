@@ -17,9 +17,11 @@ export class AppController {
   @Get('whois')
   whois(): CommonResponse {
     const _response: CommonResponse = getCommonResponse();
-    _response.success = true;
-    _response.message = 'success';
-    _response.code = 200;
+    _response.isSuccess = true;
+    _response.code = '2000';
+    _response.message = 'This request is processed successfully';
+    _response.resSystem = 'c';
+    _response.comSystem = 'central-common';
     _response.data = this.appService.whois();
     // _response.result = this.appService.whois();
     // _response.message = 'success';

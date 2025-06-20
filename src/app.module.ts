@@ -8,7 +8,7 @@ import { RedisModule } from './redis/redis.module';
 import { UtilsModule } from './utils/utils.module'; // Global module
 import { RouterModule } from '@nestjs/core';
 import { Modules } from './modules/modules';
-import { MindsTrafficLightModule } from './routes/minds-traffic-light.module';
+import { MindsSignalModule } from './routes/minds-signal.module';
 import { MetricsController } from './metrics.controller';
 import { MetricMiddleware, Pm2MetricsService } from './middlewares/metric.middleware';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
@@ -23,8 +23,8 @@ import { HealthModule } from './health/health.module';
     forwardRef(() =>
       RouterModule.register([
         {
-          path: 'mtl',
-          module: MindsTrafficLightModule,
+          path: 'msl',
+          module: MindsSignalModule,
         },
       ]),
     ),
@@ -33,7 +33,7 @@ import { HealthModule } from './health/health.module';
     RedisModule,
     UtilsModule,
     // End-point registering
-    MindsTrafficLightModule,
+    MindsSignalModule,
     HealthModule,
   ],
   controllers: [AppController, MetricsController],
