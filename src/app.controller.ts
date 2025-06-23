@@ -23,10 +23,6 @@ export class AppController {
     _response.resSystem = 'c';
     _response.comSystem = 'central-common';
     _response.data = this.appService.whois();
-    // _response.result = this.appService.whois();
-    // _response.message = 'success';
-    // _response.code = 200;
-    // _response.httpStatus = 'OK';
     return _response;
   }
 

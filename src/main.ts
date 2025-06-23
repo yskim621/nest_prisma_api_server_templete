@@ -97,8 +97,8 @@ async function bootstrap() {
   await app.listen(process.env.PORT);
 
   process.env.NODE_ENV != 'prod'
-    ? Logger.log(`🚀  Local Server ready at http://${SERVICE_DOMAIN}:${PORT}`, 'Bootstrap')
-    : Logger.log(`🚀  Production Server ready at https://${SERVICE_DOMAIN}:${PORT}`, 'Bootstrap');
+    ? Logger.log(`🚀  Local Server ready at ${SERVICE_DOMAIN}:${PORT}`, 'Bootstrap')
+    : Logger.log(`🚀  Production Server ready at ${SERVICE_DOMAIN}:${PORT}`, 'Bootstrap');
 }
 
 // "Simplicity is the soul of efficiency."
