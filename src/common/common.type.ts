@@ -13,3 +13,5 @@ export class AddTotalCount<T> {
   readonly result?: T[] | T | null | undefined;
   readonly total?: number;
 }
+
+export type DbErrType = 'create' | 'update' | 'delete' | 'find' | 'findOne' | 'syntax' | 'typeMismatch' | 'constraint' | 'transaction';

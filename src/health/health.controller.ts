@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { HealthCheckService, HttpHealthIndicator, HealthCheck } from '@nestjs/terminus';
-import { CommonResponse, getCommonResponse } from '../common/common.interface';
+import { CommonResponse } from '../common/common.interface';
+import { getQueryErrRes, getDefaultResponse } from '../common/common.response';
 import { ApiOkResponse } from '@nestjs/swagger';
 
 @Controller('health')
@@ -14,13 +15,20 @@ export class HealthController {
   @HealthCheck()
   @ApiOkResponse({ type: CommonResponse })
   check() {
-    const _response: CommonResponse = getCommonResponse();
+    const _response: CommonResponse = getDefaultResponse();
     _response.isSuccess = true;
     _response.code = '2000';
     _response.message = 'This request is processed successfully';
     _response.resSystem = 'c';
     _response.comSystem = 'aws-central';
     _response.data = null;
+    return _response;
+  }
+
+  @Get('/error')
+  @ApiOkResponse({ type: CommonResponse })
+  checkErrorRes() {
+    const _response: CommonResponse = getQueryErrRes('create');
     return _response;
   }
 
