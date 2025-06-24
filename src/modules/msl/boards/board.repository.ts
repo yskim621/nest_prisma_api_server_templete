@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { MindsaiPrismaService } from 'src/prisma/mindsai_platform.prisma.service';
 import { CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
+import { QueryException } from '../../../common/commom.exception';
 
 // 기능과 상관없는 샘플용 코드
 @Injectable()
@@ -8,15 +9,19 @@ export class BoardRepository {
   constructor(private prisma: MindsaiPrismaService) {}
 
   async create(data: CreateBoardDto) {
-    return this.prisma.board.create({
-      data: {
-        title: data.title,
-        description: data.description,
-        user: {
-          connect: { id: data.userId },
+    try {
+      return this.prisma.board.create({
+        data: {
+          title: data.title,
+          description: data.description,
+          user: {
+            connect: { id: data.userId },
+          },
         },
-      },
-    });
+      });
+    } catch (error) {
+      throw new QueryException('create', error);
+    }
   }
 
   async createMultiData(data: CreateBoardDto) {
@@ -44,7 +49,11 @@ export class BoardRepository {
   }
 
   async findAll() {
-    return this.prisma.board.findMany();
+    try {
+      return this.prisma.board.findMany();
+    } catch {
+      throw new QueryException('find');
+    }
   }
 
   async findOne(id: number) {

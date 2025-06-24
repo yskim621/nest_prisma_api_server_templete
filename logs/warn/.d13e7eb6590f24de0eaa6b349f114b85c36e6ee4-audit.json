@@ -19,6 +19,11 @@
             "date": 1750658900412,
             "name": "logs/warn/warn-2025-06-23.log",
             "hash": "c48184925f6c31f38dc0a9e5ce7358df162f88df09bae646e040937fbff765ea"
+        },
+        {
+            "date": 1750741827930,
+            "name": "logs/warn/warn-2025-06-24.log",
+            "hash": "48e379f72c56f55194939f9b822dc2d7841d3cfed10f397e4547261c8e8cbd3c"
         }
     ],
     "hashType": "sha256"
