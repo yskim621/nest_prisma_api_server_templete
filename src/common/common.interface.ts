@@ -73,7 +73,7 @@ export interface CommmonResponseResult {
 type ResSystem = 'c' | 'n' | 'e' | 'p' | 'u' | 'a';
 
 
-type ComSystem =
+export type ComSystem =
   | 'central-notification'
   | 'notification-central'
   | 'central-payment'
