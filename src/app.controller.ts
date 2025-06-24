@@ -1,6 +1,7 @@
 import { Controller, Get, NotFoundException, Query } from '@nestjs/common';
 import { AppService } from './app.service';
-import { CommonResponse, getCommonResponse } from './common/common.interface';
+import { CommonResponse } from './common/common.interface';
+import { getQueryErrRes, getDefaultResponse } from './common/common.response';
 import { RedisService } from './redis/redis.service';
 
 @Controller()
@@ -14,9 +15,10 @@ export class AppController {
   getHello(): string {
     throw new NotFoundException();
   }
+
   @Get('whois')
   whois(): CommonResponse {
-    const _response: CommonResponse = getCommonResponse();
+    const _response: CommonResponse = getDefaultResponse();
     _response.isSuccess = true;
     _response.code = '2000';
     _response.message = 'This request is processed successfully';
@@ -24,6 +26,11 @@ export class AppController {
     _response.comSystem = 'central-common';
     _response.data = this.appService.whois();
     return _response;
+  }
+
+  @Get('/resTest')
+  getErrorRes(): CommonResponse {
+    return getQueryErrRes('update');
   }
 
   @Get('/cache')
