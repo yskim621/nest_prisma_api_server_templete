@@ -42,18 +42,6 @@ export class CommonResponseWithPagination<T> {
   readonly pagination: Pagination;
 }
 
-export function getCommonResponse<T>(): CommonResponse<T> {
-  return {
-    code: '5000',
-    isSuccess: false,
-    message: 'This request is not processed',
-    resSystem: 'c',
-    comSystem: 'central-common',
-    resTime: new Date(),
-    data: null,
-  };
-}
-
 export interface CommmonResponseResult {
   /**
    * 2000(성공), 4xxx(클라이언트 에러), 5xxx(서버 에러), 9999(unknown)
@@ -85,7 +73,7 @@ export interface CommmonResponseResult {
 type ResSystem = 'c' | 'n' | 'e' | 'p' | 'u' | 'a';
 
 
-type ComSystem =
+export type ComSystem =
   | 'central-notification'
   | 'notification-central'
   | 'central-payment'
