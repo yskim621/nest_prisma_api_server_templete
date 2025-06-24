@@ -132,7 +132,7 @@ export function getQueryErrRes<T>(errType: DbErrType): CommonResponse<T> {
   };
 }
 
-export function getAuthErrRes<T>(errType: ClientErrType, comSystem: ComSystem): CommonResponse<T> {
+export function getClientErrRes<T>(errType: ClientErrType, comSystem: ComSystem): CommonResponse<T> {
   const { callerLine, stack } = getCallerLine();
   if (!errType) {
     return getDefaultResponse<T>();
