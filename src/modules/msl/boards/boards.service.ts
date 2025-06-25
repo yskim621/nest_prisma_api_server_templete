@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import { BoardRepository } from './board.repository';
-import { QueryException } from '../../../common/commom.exception';
+import { CreateQueryException, FindQueryException, QueryException } from '../../../common/commom.exception';
 
 @Injectable()
 export class BoardsService {
@@ -11,7 +11,7 @@ export class BoardsService {
     try {
       return await this.boardRepository.create(createBoardDto);
     } catch (error) {
-      throw new QueryException('create', error);
+      throw new CreateQueryException(error);
     }
   }
 
@@ -20,7 +20,11 @@ export class BoardsService {
   }
 
   async getAllBoards() {
-    return this.boardRepository.findAll();
+    try {
+      return this.boardRepository.findAll();
+    } catch (error) {
+      throw new FindQueryException(error);
+    }
   }
 
   async findOne(id: number) {

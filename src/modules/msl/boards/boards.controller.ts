@@ -5,6 +5,7 @@ import { CommonResponse } from '../../../common/common.interface';
 import { getDefaultResponse, getQueryErrRes } from '../../../common/common.response';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { Response } from 'express';
+import { CreateQueryException, FindQueryException } from '../../../common/commom.exception';
 
 @Controller('boards')
 export class BoardsController {
@@ -19,9 +20,12 @@ export class BoardsController {
       _response.data = { board: createdBoard };
 
       res.status(HttpStatus.OK).json(_response);
-    } catch {
-      const queryErrRes = getQueryErrRes('create');
-      res.status(HttpStatus.OK).json(queryErrRes);
+    } catch (error) {
+      const createQueryException = new CreateQueryException(error);
+      const response = createQueryException.getResponse();
+      res.status(HttpStatus.OK).json(response);
+      // const queryErrRes = getQueryErrRes('create');
+      // res.status(HttpStatus.OK).json(queryErrRes);
     }
   }
 
@@ -31,8 +35,14 @@ export class BoardsController {
   }
 
   @Get()
+  @ApiOkResponse({ type: [CreateBoardDto], description: 'List of all boards' })
   findAll() {
-    return this.boardsService.getAllBoards();
+    try {
+      return this.boardsService.getAllBoards();
+    } catch (error) {
+      console.error(error);
+      throw new FindQueryException(error);
+    }
   }
 
   @Get(':id')
