@@ -1,7 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { MindsaiPrismaService } from 'src/prisma/mindsai_platform.prisma.service';
 import { CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
-import { CreateQueryException, FindQueryException, QueryException } from '../../../common/commom.exception';
+import {
+  CreateQueryException,
+  FindOneQueryException,
+  FindQueryException,
+  QueryException,
+} from '../../../common/commom.exception';
+import { createException } from '../../../common/common.error-handler';
 
 // 기능과 상관없는 샘플용 코드
 @Injectable()
@@ -10,6 +16,11 @@ export class BoardRepository {
 
   async create(data: CreateBoardDto) {
     try {
+      const foundBoard = await this.findOne(11);
+      if (!foundBoard) {
+        throw new FindOneQueryException();
+      }
+
       return this.prisma.board.create({
         data: {
           title: data.title,
@@ -20,7 +31,9 @@ export class BoardRepository {
         },
       });
     } catch (error) {
-      throw new CreateQueryException(error);
+      if (error instanceof HttpException) {
+        createException(error);
+      }
     }
   }
 

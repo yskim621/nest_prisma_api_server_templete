@@ -6,6 +6,7 @@ import { getDefaultResponse, getQueryErrRes } from '../../../common/common.respo
 import { ApiOkResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 import { CreateQueryException, FindQueryException } from '../../../common/commom.exception';
+import { errorHandle } from '../../../common/common.error-handler';
 
 @Controller('boards')
 export class BoardsController {
@@ -21,9 +22,10 @@ export class BoardsController {
 
       res.status(HttpStatus.OK).json(_response);
     } catch (error) {
-      const createQueryException = new CreateQueryException(error);
-      const response = createQueryException.getResponse();
-      res.status(HttpStatus.OK).json(response);
+      const commonResponse = errorHandle(error, 'central-common');
+      // const createQueryException = new CreateQueryException(error);
+      // const response = createQueryException.getResponse();
+      res.status(HttpStatus.OK).json(commonResponse);
       // const queryErrRes = getQueryErrRes('create');
       // res.status(HttpStatus.OK).json(queryErrRes);
     }

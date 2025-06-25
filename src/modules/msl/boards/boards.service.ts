@@ -1,7 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import { BoardRepository } from './board.repository';
-import { CreateQueryException, FindQueryException, QueryException } from '../../../common/commom.exception';
+import {
+  CreateQueryException,
+  FindQueryException,
+  QueryException, TransactionQueryException,
+  UpdateQueryException,
+} from '../../../common/commom.exception';
+import { createException, errorHandle } from '../../../common/common.error-handler';
 
 @Injectable()
 export class BoardsService {
@@ -11,7 +17,9 @@ export class BoardsService {
     try {
       return await this.boardRepository.create(createBoardDto);
     } catch (error) {
-      throw new CreateQueryException(error);
+      if (error instanceof HttpException) {
+        createException(error);
+      }
     }
   }
 

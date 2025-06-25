@@ -5,6 +5,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { MindsaiPrismaService } from '../../../prisma/mindsai_platform.prisma.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
       inject: [ConfigService],
     }),
+    UserModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, MindsaiPrismaService],

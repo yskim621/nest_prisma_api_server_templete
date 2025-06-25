@@ -18,14 +18,15 @@ const getCallerLine = (): { callerLine: string; stack: string } => {
   logger.debug(`Error: ${stack}`);
 
   // 0: Error
-  // 1: at getCallerLine (common.response.ts:...)
+  // 1: at getCallerLine (common.response.ts:...) <- 에러 발생 위치
   // 2: at getQueryErrRes (common.response.ts:...) <- 에러 발생 위치
-  // 2: at [CALLER LOCATION] ← 이 함수(getQueryErrRes())를 호출한 위치 (외부 파일 or 실제 호출자)
+  // 3: at errorHandle (common.exception.ts:...) <- 에러 발생 위치
+  // 4: at [CALLER LOCATION] ← 이 함수(getCallerLine())를 호출한 위치 (외부 파일 or 실제 호출자)
   const errStackArr = stack.split('\n');
 
   // errStackArr[0]은 "Error" 메시지이므로 제외하고, 1부터 시작
-  // "getCallerLine" 함수가 포착된 위치의 다음 줄이 진짜 호출 위치
-  const idx = errStackArr.findIndex((line) => line.includes(errStackArr[2].trim()));
+  // "CreateQueryException" 함수가 포착된 위치의 다음 줄이 진짜 호출 위치
+  const idx = errStackArr.findIndex((line) => line.includes(errStackArr[3].trim()));
   if (idx < 0 || errStackArr.length <= idx + 1) {
     return {
       callerLine,
@@ -122,11 +123,7 @@ export function getQueryErrRes<T>(errType: DbErrType, error?: Error): CommonResp
       break;
   }
 
-  if (!error) {
-    errMsg = `${errTypeDetail} Error Occurred at [${callerLine}] with error: ${stack}`;
-  } else {
-    errMsg = `${errTypeDetail} Error Occurred at [${callerLine}] with error: ${error}`;
-  }
+  errMsg = `${errTypeDetail} Error Occurred at [${callerLine}] with error: ${stack}`;
 
   return {
     code,

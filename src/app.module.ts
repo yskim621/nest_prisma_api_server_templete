@@ -32,8 +32,6 @@ import { HealthModule } from './health/health.module';
     PrismaModule,
     RedisModule,
     UtilsModule,
-    // End-point registering
-    MindsSignalModule,
     HealthModule,
   ],
   controllers: [AppController, MetricsController],
