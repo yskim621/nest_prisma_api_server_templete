@@ -1,14 +1,28 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus } from '@nestjs/common';
 import { BoardsService } from './boards.service';
 import { CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
+import { CommonResponse } from '../../../common/common.interface';
+import { getDefaultResponse, getQueryErrRes } from '../../../common/common.response';
+import { ApiOkResponse } from '@nestjs/swagger';
+import { Response } from 'express';
 
 @Controller('boards')
 export class BoardsController {
   constructor(private readonly boardsService: BoardsService) {}
 
-  @Post()
-  create(@Body() createBoardDto: CreateBoardDto) {
-    return this.boardsService.create(createBoardDto);
+  @Post('/create')
+  @ApiOkResponse({ type: CommonResponse, description: 'Board created successfully' })
+  async create(@Body() createBoardDto: CreateBoardDto, @Res() res: Response): Promise<void> {
+    try {
+      const createdBoard = await this.boardsService.create(createBoardDto);
+      const _response: CommonResponse = getDefaultResponse();
+      _response.data = { board: createdBoard };
+
+      res.status(HttpStatus.OK).json(_response);
+    } catch {
+      const queryErrRes = getQueryErrRes('create');
+      res.status(HttpStatus.OK).json(queryErrRes);
+    }
   }
 
   @Post('/bulk-contents')

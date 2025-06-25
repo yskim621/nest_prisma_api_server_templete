@@ -9,19 +9,19 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, CommonResponse
   intercept(_: ExecutionContext, next: CallHandler): Observable<CommonResponse<T>> {
     return next.handle().pipe(
       map((data: unknown): CommonResponse<T> => {
-        if (typeof data === 'object' && data !== null && 'isSuccess' in data) {
-          return data as CommonResponse<T>; // ✅ 안전한 단언
+        if (typeof data !== 'object' || data === null || !('isSuccess' in data)) {
+          return {
+            isSuccess: false,
+            code: '9999',
+            message: 'This request is not processed successfully due to an unknown error.',
+            resSystem: 'c',
+            comSystem: 'central-common',
+            resTime: new Date(),
+            data: data as T,
+          };
         }
 
-        return {
-          isSuccess: true,
-          code: '2000',
-          message: 'This request is processed successfully',
-          resSystem: 'c',
-          comSystem: 'central-common',
-          resTime: new Date(),
-          data: data as T,
-        };
+        return data as CommonResponse<T>; // ✅ 안전한 단언
       }),
     );
   }

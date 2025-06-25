@@ -44,9 +44,9 @@ const getCallerLine = (): { callerLine: string; stack: string } => {
 
 export function getDefaultResponse<T>(): CommonResponse<T> {
   return {
-    code: '5000',
-    isSuccess: false,
-    message: 'This request is not processed',
+    code: '2000',
+    isSuccess: true,
+    message: 'This request is processed',
     resSystem: 'c',
     comSystem: 'central-common',
     resTime: new Date(),
@@ -54,7 +54,7 @@ export function getDefaultResponse<T>(): CommonResponse<T> {
   };
 }
 
-export function getQueryErrRes<T>(errType: DbErrType): CommonResponse<T> {
+export function getQueryErrRes<T>(errType: DbErrType, error?: Error): CommonResponse<T> {
   const { callerLine, stack } = getCallerLine();
   if (!errType) {
     return getDefaultResponse<T>();
@@ -62,6 +62,7 @@ export function getQueryErrRes<T>(errType: DbErrType): CommonResponse<T> {
 
   let code = '9999'; // Default error code for unknown errors
   let errTypeDetail = 'Unknown';
+  let errMsg = 'Unknown Error';
 
   switch (errType) {
     case 'create':
@@ -121,10 +122,16 @@ export function getQueryErrRes<T>(errType: DbErrType): CommonResponse<T> {
       break;
   }
 
+  if (!error) {
+    errMsg = `${errTypeDetail} Error Occurred at [${callerLine}] with error: ${stack}`;
+  } else {
+    errMsg = `${errTypeDetail} Error Occurred at [${callerLine}] with error: ${error}`;
+  }
+
   return {
     code,
     isSuccess: false,
-    message: `${errTypeDetail} Error Occurred at [${callerLine}] with error: ${stack}`,
+    message: errMsg,
     resSystem: 'c',
     comSystem: 'central-database',
     resTime: new Date(),
@@ -132,7 +139,7 @@ export function getQueryErrRes<T>(errType: DbErrType): CommonResponse<T> {
   };
 }
 
-export function getAuthErrRes<T>(errType: ClientErrType, comSystem: ComSystem): CommonResponse<T> {
+export function getClientErrRes<T>(errType: ClientErrType, comSystem: ComSystem): CommonResponse<T> {
   const { callerLine, stack } = getCallerLine();
   if (!errType) {
     return getDefaultResponse<T>();

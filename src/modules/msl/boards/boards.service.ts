@@ -1,13 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import { BoardRepository } from './board.repository';
+import { QueryException } from '../../../common/commom.exception';
 
 @Injectable()
 export class BoardsService {
   constructor(private boardRepository: BoardRepository) {}
 
   async create(createBoardDto: CreateBoardDto) {
-    return this.boardRepository.create(createBoardDto);
+    try {
+      return await this.boardRepository.create(createBoardDto);
+    } catch (error) {
+      throw new QueryException('create', error);
+    }
   }
 
   async createBulkContents(createBoardDto: CreateBoardDto) {
