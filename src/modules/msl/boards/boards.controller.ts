@@ -23,11 +23,7 @@ export class BoardsController {
       res.status(HttpStatus.OK).json(_response);
     } catch (error) {
       const commonResponse = errorHandle(error, 'central-common');
-      // const createQueryException = new CreateQueryException(error);
-      // const response = createQueryException.getResponse();
       res.status(HttpStatus.OK).json(commonResponse);
-      // const queryErrRes = getQueryErrRes('create');
-      // res.status(HttpStatus.OK).json(queryErrRes);
     }
   }
 

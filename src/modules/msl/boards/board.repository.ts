@@ -16,12 +16,7 @@ export class BoardRepository {
 
   async create(data: CreateBoardDto) {
     try {
-      const foundBoard = await this.findOne(11);
-      if (!foundBoard) {
-        throw new FindOneQueryException();
-      }
-
-      return this.prisma.board.create({
+      return await this.prisma.board.create({
         data: {
           title: data.title,
           description: data.description,
@@ -79,7 +74,7 @@ export class BoardRepository {
       await this.prisma.$transaction(async (tx) => {
         const foundUserData = await tx.user.findUnique({ where: { id: data.userId } }); // Throws if not found
         if (!foundUserData) {
-          throw new NotFoundException();
+          throw new FindOneQueryException();
         }
 
         if (foundUserData.accountStatus === AccountStatus.ACTIVE) {

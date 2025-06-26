@@ -20,7 +20,6 @@ export class UserRepository {
 
     // Business Logic
     const user = await this.prisma.user.findUnique({ where: { id } });
-    if (!user) throw new NotFoundException(`User #${id} not found`);
 
     // Post-process
     return user;

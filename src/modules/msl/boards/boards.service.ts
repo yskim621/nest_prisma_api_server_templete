@@ -2,20 +2,33 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import { BoardRepository } from './board.repository';
 import {
-  CreateQueryException,
+  CreateQueryException, FindOneQueryException,
   FindQueryException,
   QueryException, TransactionQueryException,
   UpdateQueryException,
 } from '../../../common/commom.exception';
 import { createException, errorHandle } from '../../../common/common.error-handler';
+import { UserRepository } from '../user/user.repository';
 
 @Injectable()
 export class BoardsService {
-  constructor(private boardRepository: BoardRepository) {}
+  constructor(
+    private boardRepository: BoardRepository,
+    private userRepository: UserRepository,
+  ) {}
 
   async create(createBoardDto: CreateBoardDto) {
     try {
-      return await this.boardRepository.create(createBoardDto);
+      const foundUser = await this.userRepository.findOne(createBoardDto.userId);
+      if (!foundUser) {
+        throw new FindOneQueryException();
+      }
+
+      const createdBoard = await this.boardRepository.create(createBoardDto);
+      if (!createdBoard) {
+        throw new CreateQueryException();
+      }
+      return createdBoard;
     } catch (error) {
       if (error instanceof HttpException) {
         createException(error);

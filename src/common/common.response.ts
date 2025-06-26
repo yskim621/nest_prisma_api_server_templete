@@ -43,11 +43,23 @@ const getCallerLine = (): { callerLine: string; stack: string } => {
   };
 };
 
-export function getDefaultResponse<T>(): CommonResponse<T> {
+export function getDefaultResponse<T>(data: T | T[] = null): CommonResponse<T> {
   return {
     code: '2000',
     isSuccess: true,
     message: 'This request is processed',
+    resSystem: 'c',
+    comSystem: 'central-common',
+    resTime: new Date(),
+    data: data,
+  };
+}
+
+export function getUnknownErrResponse<T>(): CommonResponse<T> {
+  return {
+    code: '9999',
+    isSuccess: false,
+    message: 'This request is not processed due to an unknown error',
     resSystem: 'c',
     comSystem: 'central-common',
     resTime: new Date(),
@@ -58,12 +70,11 @@ export function getDefaultResponse<T>(): CommonResponse<T> {
 export function getQueryErrRes<T>(errType: DbErrType, error?: Error): CommonResponse<T> {
   const { callerLine, stack } = getCallerLine();
   if (!errType) {
-    return getDefaultResponse<T>();
+    return getUnknownErrResponse<T>();
   }
 
   let code = '9999'; // Default error code for unknown errors
   let errTypeDetail = 'Unknown';
-  let errMsg = 'Unknown Error';
 
   switch (errType) {
     case 'create':
@@ -123,12 +134,10 @@ export function getQueryErrRes<T>(errType: DbErrType, error?: Error): CommonResp
       break;
   }
 
-  errMsg = `${errTypeDetail} Error Occurred at [${callerLine}] with error: ${stack}`;
-
   return {
     code,
     isSuccess: false,
-    message: errMsg,
+    message: `${errTypeDetail} Error Occurred at [${callerLine}] with error: ${stack}`,
     resSystem: 'c',
     comSystem: 'central-database',
     resTime: new Date(),
@@ -139,7 +148,7 @@ export function getQueryErrRes<T>(errType: DbErrType, error?: Error): CommonResp
 export function getClientErrRes<T>(errType: ClientErrType, comSystem: ComSystem): CommonResponse<T> {
   const { callerLine, stack } = getCallerLine();
   if (!errType) {
-    return getDefaultResponse<T>();
+    return getUnknownErrResponse<T>();
   }
 
   let code = '9999'; // Default error code for unknown errors
@@ -226,7 +235,7 @@ export function getClientErrRes<T>(errType: ClientErrType, comSystem: ComSystem)
 export function getServerErrRes<T>(errType: ServerErrType, comSystem: ComSystem): CommonResponse<T> {
   const { callerLine, stack } = getCallerLine();
   if (!errType) {
-    return getDefaultResponse<T>();
+    return getUnknownErrResponse<T>();
   }
 
   let code = '9999'; // Default error code for unknown errors
