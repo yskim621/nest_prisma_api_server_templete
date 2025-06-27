@@ -2,7 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { MindsaiPrismaService } from 'src/prisma/mindsai_platform.prisma.service';
 import { Board, CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import { FindOneQueryException, FindQueryException } from '../../../common/commom.exception';
-import { createException } from '../../../common/common.error-handler';
+import { generateException } from '../../../common/common.error-handler';
 import { ContentStatus } from './board.enum';
 import { AccountStatus } from '../user/user.enum';
 
@@ -29,7 +29,7 @@ export class BoardRepository {
       };
     } catch (error) {
       if (error instanceof HttpException) {
-        createException(error);
+        generateException(error);
       }
     }
   }

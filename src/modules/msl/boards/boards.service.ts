@@ -5,7 +5,7 @@ import {
   CreateQueryException, FindOneQueryException,
   FindQueryException,
 } from '../../../common/commom.exception';
-import { createException, errorHandle } from '../../../common/common.error-handler';
+import { generateException } from '../../../common/common.error-handler';
 import { UserRepository } from '../user/user.repository';
 
 @Injectable()
@@ -29,7 +29,7 @@ export class BoardsService {
       return createdBoard;
     } catch (error) {
       if (error instanceof HttpException) {
-        createException(error);
+        generateException(error);
       }
     }
   }

@@ -28,7 +28,10 @@ export async function sendNotification(type: string, title: string, textMessage:
   };
 
   if (errorObj) {
-    message.text += `\n\nError Details: ${JSON.stringify(errorObj, null, 2)}`;
+    message.text += `
+    \n\nError Details: ${JSON.stringify(errorObj, null, 2)}
+    \r\n --------------------------------------------------------------------------------------------------------
+    `;
   }
 
   try {

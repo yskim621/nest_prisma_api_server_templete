@@ -10,7 +10,7 @@ import { WinstonLoggerService } from './middlewares/logger.middleware';
 import { SERVICE_DOMAIN, PORT, REDIS_HOST, REDIS_PORT } from './environment';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { MindsSignalModule } from './routes/minds-signal.module';
-import { AllExceptionsFilter } from './interceptors/all-exception.filters';
+import { AllExceptionsFilter, PrismaExceptionFilter } from './interceptors/all-exception.filters';
 import helmet from 'helmet';
 
 const originalLog = console.log;
@@ -44,8 +44,10 @@ async function bootstrap() {
   });
   // 전역 유효성 검사 파이프 설정 (DTO 기반 자동 검증)
   app.useGlobalPipes(new ValidationPipe());
-  // sql 에러 처리
+  // 전역 에러 처리
   app.useGlobalFilters(new AllExceptionsFilter());
+  // sql 에러 처리
+  app.useGlobalFilters(new PrismaExceptionFilter());
   // 전역 인터셉터 등록 - 모든 요청에 대해 EveryInterceptor 실행
   app.useGlobalInterceptors(new EveryInterceptor());
   // 전역 인터셉터 등록 - 모든 응답을 ResponseInterceptor 가공
@@ -93,6 +95,7 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   process.env.NODE_ENV != 'prod'
     ? Logger.log(`🚀  Local Server ready at ${SERVICE_DOMAIN}:${PORT}`, 'Bootstrap')
     : Logger.log(`🚀  Production Server ready at ${SERVICE_DOMAIN}:${PORT}`, 'Bootstrap');

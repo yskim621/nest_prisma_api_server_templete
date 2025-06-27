@@ -3,6 +3,9 @@ import { getQueryErrRes, getClientErrRes, getServerErrRes, getUnknownErrResponse
 import * as Exceptions from './commom.exception';
 import { HttpException } from '@nestjs/common';
 import type { DbErrType, ClientErrType, ServerErrType } from './common.type';
+import { sendNotification } from '../utils/notification';
+import path from 'path';
+import fs from 'fs';
 
 // Exception maps as objects
 const dbExceptionMap = {
@@ -60,9 +63,29 @@ const serverExceptionMap = {
   unknown: Exceptions.UnknownServerException,
 } as const;
 
-export function errorHandle(error: unknown, comSystem: ComSystem = 'central-common'): CommonResponse {
+const packageJsonPath = path.join(__dirname, '..', '..', 'package.json');
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const packageJsonData = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+const packageName = packageJsonData.name;
+
+const getErrorMessage = (type: string, errPath?: string): string => {
+  return `
+    \r\n --------------------------------------------------------------------------------------------------------
+    \r\n 서버 에러가 발생했습니다. 
+    \r\n Error type: ${type} query error
+    \r\n Error Path: ${errPath} 
+    \r\n ${packageName} 프로젝트 ${process.env.NODE_ENV} 환경 
+    \r\n 해당 프로젝트 담당자는 확인바랍니다.
+  `;
+};
+
+export async function errorHandle(error: unknown, errPath?: string, comSystem: ComSystem = 'central-common'): Promise<CommonResponse> {
   for (const [type, ExceptionClass] of Object.entries(dbExceptionMap) as unknown as [DbErrType, typeof Error][]) {
     if (error instanceof ExceptionClass) {
+      const errorMessage = getErrorMessage(type, errPath);
+      await sendNotification('error', 'Internal Server Error', errorMessage, error);
+
       return getQueryErrRes(type, error);
     }
   }
@@ -100,6 +123,6 @@ function ThrowFoundException(error: HttpException): never {
   throw error;
 }
 
-export function createException(error: HttpException): never {
+export function generateException(error: HttpException): never {
   ThrowFoundException(error);
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpCode, Req } from '@nestjs/common';
 import { BoardsService } from './boards.service';
 import { Board, CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import { ApiOkResponse } from '@nestjs/swagger';
@@ -12,11 +12,11 @@ export class BoardsController {
   @Post('/create')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: Board, description: 'Board created successfully' })
-  async create(@Body() createBoardDto: CreateBoardDto) {
+  async create(@Body() createBoardDto: CreateBoardDto, @Req() request: Request) {
     try {
       return await this.boardsService.create(createBoardDto);
     } catch (error) {
-      return errorHandle(error, 'central-common');
+      return await errorHandle(error, request.url, 'central-common');
     }
   }
 
