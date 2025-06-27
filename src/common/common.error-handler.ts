@@ -123,6 +123,6 @@ function ThrowFoundException(error: HttpException): never {
   throw error;
 }
 
-export function createException(error: HttpException): never {
+export function generateException(error: HttpException): never {
   ThrowFoundException(error);
 }
