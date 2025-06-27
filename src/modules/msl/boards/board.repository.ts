@@ -1,26 +1,36 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { MindsaiPrismaService } from 'src/prisma/mindsai_platform.prisma.service';
-import { CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
-import { QueryException } from '../../../common/commom.exception';
+import { Board, CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
+import { FindOneQueryException, FindQueryException } from '../../../common/commom.exception';
+import { createException } from '../../../common/common.error-handler';
+import { ContentStatus } from './board.enum';
+import { AccountStatus } from '../user/user.enum';
 
 // 기능과 상관없는 샘플용 코드
 @Injectable()
 export class BoardRepository {
   constructor(private prisma: MindsaiPrismaService) {}
 
-  async create(data: CreateBoardDto) {
+  async create(data: CreateBoardDto): Promise<Board> {
     try {
-      return this.prisma.board.create({
+      const createdBoard = await this.prisma.board.create({
         data: {
           title: data.title,
           description: data.description,
+          status: data.status as string, // 기본값 설정
           user: {
             connect: { id: data.userId },
           },
         },
       });
+      return {
+        ...createdBoard,
+        status: createdBoard.status as ContentStatus,
+      };
     } catch (error) {
-      throw new QueryException('create', error);
+      if (error instanceof HttpException) {
+        createException(error);
+      }
     }
   }
 
@@ -51,8 +61,8 @@ export class BoardRepository {
   async findAll() {
     try {
       return this.prisma.board.findMany();
-    } catch {
-      throw new QueryException('find');
+    } catch (error) {
+      throw new FindQueryException(error);
     }
   }
 
@@ -66,9 +76,10 @@ export class BoardRepository {
       await this.prisma.$transaction(async (tx) => {
         const foundUserData = await tx.user.findUnique({ where: { id: data.userId } }); // Throws if not found
         if (!foundUserData) {
-          throw new NotFoundException();
+          throw new FindOneQueryException();
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
         if (foundUserData.accountStatus === AccountStatus.ACTIVE) {
           return;
         }

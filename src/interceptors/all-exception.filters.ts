@@ -1,11 +1,13 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
-import { PrismaClient, Prisma } from '../../prisma/generated/mindsai_platform';
+import { Prisma } from '../../prisma/generated/mindsai_platform';
 // import { Prisma } from '@prisma/client';
 import { sendNotification } from 'src/utils/notification';
 import * as fs from 'fs';
 import * as path from 'path';
 import { CommonResponse } from '../common/common.interface';
 import { Response } from 'express';
+import { DbErrType } from '../common/common.type';
+import { getQueryErrRes } from '../common/common.response';
 
 const packageJsonPath = path.join(__dirname, '..', '..', 'package.json');
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -103,6 +105,53 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     response.status(status).json({
       ...result,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+    });
+  }
+}
+
+@Catch(Prisma.PrismaClientKnownRequestError)
+export class PrismaClientExceptionFilter implements ExceptionFilter {
+  catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const request = ctx.getRequest<Request>();
+    const response = ctx.getResponse<Response>();
+
+
+    // Map Prisma error codes to your DbErrType
+    let dbErrType: DbErrType = 'unknown'; // default
+    switch (exception.code) {
+      case 'P1001':
+        dbErrType = 'connectionPool';
+        break;
+      case 'P1008':
+        dbErrType = 'connectionPool';
+        break;
+      case 'P2002':
+        dbErrType = 'constraint';
+        break;
+      case 'P2003':
+        dbErrType = 'constraint';
+        break;
+      case 'P2010':
+        dbErrType = 'syntax';
+        break;
+      case 'P2025':
+        dbErrType = 'find';
+        break;
+      case 'P2034':
+        dbErrType = 'transaction';
+        break;
+      default:
+        dbErrType = 'unknown';
+        break;
+    }
+
+    const errorResponse: CommonResponse = getQueryErrRes(dbErrType);
+
+    response.status(HttpStatus.OK).json({
+      ...errorResponse,
       timestamp: new Date().toISOString(),
       path: request.url,
     });

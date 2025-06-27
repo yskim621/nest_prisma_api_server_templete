@@ -18,14 +18,15 @@ const getCallerLine = (): { callerLine: string; stack: string } => {
   logger.debug(`Error: ${stack}`);
 
   // 0: Error
-  // 1: at getCallerLine (common.response.ts:...)
+  // 1: at getCallerLine (common.response.ts:...) <- 에러 발생 위치
   // 2: at getQueryErrRes (common.response.ts:...) <- 에러 발생 위치
-  // 2: at [CALLER LOCATION] ← 이 함수(getQueryErrRes())를 호출한 위치 (외부 파일 or 실제 호출자)
+  // 3: at errorHandle (common.exception.ts:...) <- 에러 발생 위치
+  // 4: at [CALLER LOCATION] ← 이 함수(getCallerLine())를 호출한 위치 (외부 파일 or 실제 호출자)
   const errStackArr = stack.split('\n');
 
   // errStackArr[0]은 "Error" 메시지이므로 제외하고, 1부터 시작
-  // "getCallerLine" 함수가 포착된 위치의 다음 줄이 진짜 호출 위치
-  const idx = errStackArr.findIndex((line) => line.includes(errStackArr[2].trim()));
+  // "CreateQueryException" 함수가 포착된 위치의 다음 줄이 진짜 호출 위치
+  const idx = errStackArr.findIndex((line) => line.includes(errStackArr[3].trim()));
   if (idx < 0 || errStackArr.length <= idx + 1) {
     return {
       callerLine,
@@ -42,11 +43,23 @@ const getCallerLine = (): { callerLine: string; stack: string } => {
   };
 };
 
-export function getDefaultResponse<T>(): CommonResponse<T> {
+export function getDefaultResponse<T>(data: T | T[] = null): CommonResponse<T> {
   return {
     code: '2000',
     isSuccess: true,
     message: 'This request is processed',
+    resSystem: 'c',
+    comSystem: 'central-common',
+    resTime: new Date(),
+    data: data,
+  };
+}
+
+export function getUnknownErrResponse<T>(): CommonResponse<T> {
+  return {
+    code: '9999',
+    isSuccess: false,
+    message: 'This request is not processed due to an unknown error',
     resSystem: 'c',
     comSystem: 'central-common',
     resTime: new Date(),
@@ -57,12 +70,11 @@ export function getDefaultResponse<T>(): CommonResponse<T> {
 export function getQueryErrRes<T>(errType: DbErrType, error?: Error): CommonResponse<T> {
   const { callerLine, stack } = getCallerLine();
   if (!errType) {
-    return getDefaultResponse<T>();
+    return getUnknownErrResponse<T>();
   }
 
   let code = '9999'; // Default error code for unknown errors
   let errTypeDetail = 'Unknown';
-  let errMsg = 'Unknown Error';
 
   switch (errType) {
     case 'create':
@@ -122,16 +134,10 @@ export function getQueryErrRes<T>(errType: DbErrType, error?: Error): CommonResp
       break;
   }
 
-  if (!error) {
-    errMsg = `${errTypeDetail} Error Occurred at [${callerLine}] with error: ${stack}`;
-  } else {
-    errMsg = `${errTypeDetail} Error Occurred at [${callerLine}] with error: ${error}`;
-  }
-
   return {
     code,
     isSuccess: false,
-    message: errMsg,
+    message: `${errTypeDetail} Error Occurred at [${callerLine}] with error: ${stack}`,
     resSystem: 'c',
     comSystem: 'central-database',
     resTime: new Date(),
@@ -142,7 +148,7 @@ export function getQueryErrRes<T>(errType: DbErrType, error?: Error): CommonResp
 export function getClientErrRes<T>(errType: ClientErrType, comSystem: ComSystem): CommonResponse<T> {
   const { callerLine, stack } = getCallerLine();
   if (!errType) {
-    return getDefaultResponse<T>();
+    return getUnknownErrResponse<T>();
   }
 
   let code = '9999'; // Default error code for unknown errors
@@ -229,7 +235,7 @@ export function getClientErrRes<T>(errType: ClientErrType, comSystem: ComSystem)
 export function getServerErrRes<T>(errType: ServerErrType, comSystem: ComSystem): CommonResponse<T> {
   const { callerLine, stack } = getCallerLine();
   if (!errType) {
-    return getDefaultResponse<T>();
+    return getUnknownErrResponse<T>();
   }
 
   let code = '9999'; // Default error code for unknown errors

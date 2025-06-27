@@ -5,7 +5,7 @@ import { urlencoded, json } from 'body-parser';
 import { EveryInterceptor } from './interceptors/every.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Logger, ValidationPipe } from '@nestjs/common';
-import { ResponseInterceptor } from './interceptors/response.interceptor';
+import { ResponseInterceptor } from './interceptors/transform.response.interceptor';
 import { WinstonLoggerService } from './middlewares/logger.middleware';
 import { SERVICE_DOMAIN, PORT, REDIS_HOST, REDIS_PORT } from './environment';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -50,9 +50,6 @@ async function bootstrap() {
   app.useGlobalInterceptors(new EveryInterceptor());
   // 전역 인터셉터 등록 - 모든 응답을 ResponseInterceptor 가공
   app.useGlobalInterceptors(new ResponseInterceptor());
-  // 전역 인터셉터 등록 - 모든 예외를 HttpExceptionFilter 가공
-  // app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalFilters(new AllExceptionsFilter());
   // CORS 활성화 (위에서 설정했지만 이중 설정해도 문제 없음)
   app.enableCors();
   // 웹사이트에서 XSS(Cross Site Scripting)공격 방지[인라인 js or css 블럭]

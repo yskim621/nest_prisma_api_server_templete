@@ -1,17 +1,36 @@
-import { Injectable } from '@nestjs/common';
-import { CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
+import { HttpException, Injectable } from '@nestjs/common';
+import { Board, CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import { BoardRepository } from './board.repository';
-import { QueryException } from '../../../common/commom.exception';
+import {
+  CreateQueryException, FindOneQueryException,
+  FindQueryException,
+} from '../../../common/commom.exception';
+import { createException, errorHandle } from '../../../common/common.error-handler';
+import { UserRepository } from '../user/user.repository';
 
 @Injectable()
 export class BoardsService {
-  constructor(private boardRepository: BoardRepository) {}
+  constructor(
+    private boardRepository: BoardRepository,
+    private userRepository: UserRepository,
+  ) {}
 
-  async create(createBoardDto: CreateBoardDto) {
+  async create(createBoardDto: CreateBoardDto): Promise<Board> {
     try {
-      return await this.boardRepository.create(createBoardDto);
+      const foundUser = await this.userRepository.findOne(createBoardDto.userId);
+      if (!foundUser) {
+        throw new FindOneQueryException();
+      }
+
+      const createdBoard = await this.boardRepository.create(createBoardDto);
+      if (!createdBoard) {
+        throw new CreateQueryException();
+      }
+      return createdBoard;
     } catch (error) {
-      throw new QueryException('create', error);
+      if (error instanceof HttpException) {
+        createException(error);
+      }
     }
   }
 
@@ -20,7 +39,11 @@ export class BoardsService {
   }
 
   async getAllBoards() {
-    return this.boardRepository.findAll();
+    try {
+      return this.boardRepository.findAll();
+    } catch (error) {
+      throw new FindQueryException(error);
+    }
   }
 
   async findOne(id: number) {

@@ -1,5 +1,6 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { IsNumber, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsString } from 'class-validator';
+import { ContentStatus } from '../board.enum';
 
 export class CreateBoardDto {
   @ApiProperty()
@@ -11,7 +12,7 @@ export class CreateBoardDto {
   description: string;
 
   @ApiProperty()
-  @IsString()
+  @IsEnum(ContentStatus, { message: 'Invalid status' })
   status: ContentStatus;
 
   @ApiProperty()
@@ -19,4 +20,5 @@ export class CreateBoardDto {
   userId: number;
 }
 
+export class Board extends PartialType(CreateBoardDto) {}
 export class UpdateBoardDto extends PartialType(CreateBoardDto) {}
