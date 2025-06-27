@@ -5,7 +5,6 @@ import { urlencoded, json } from 'body-parser';
 import { EveryInterceptor } from './interceptors/every.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Logger, ValidationPipe } from '@nestjs/common';
-// import { ResponseInterceptor } from './interceptors/response.interceptor';
 import { ResponseInterceptor } from './interceptors/transform.response.interceptor';
 import { WinstonLoggerService } from './middlewares/logger.middleware';
 import { SERVICE_DOMAIN, PORT, REDIS_HOST, REDIS_PORT } from './environment';

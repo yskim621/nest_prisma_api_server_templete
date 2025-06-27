@@ -1,11 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus, HttpCode } from '@nestjs/common';
 import { BoardsService } from './boards.service';
 import { Board, CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
-import { CommonResponse } from '../../../common/common.interface';
-import { getDefaultResponse, getQueryErrRes } from '../../../common/common.response';
 import { ApiOkResponse } from '@nestjs/swagger';
-import { Response } from 'express';
-import { CreateQueryException, FindQueryException } from '../../../common/commom.exception';
+import { FindQueryException } from '../../../common/commom.exception';
 import { errorHandle } from '../../../common/common.error-handler';
 
 @Controller('boards')
@@ -17,9 +14,6 @@ export class BoardsController {
   @ApiOkResponse({ type: Board, description: 'Board created successfully' })
   async create(@Body() createBoardDto: CreateBoardDto) {
     try {
-      // const createdBoard = await this.boardsService.create(createBoardDto);
-      // const _response: CommonResponse = getDefaultResponse();
-      // _response.data = { board: createdBoard };
       return await this.boardsService.create(createBoardDto);
     } catch (error) {
       return errorHandle(error, 'central-common');

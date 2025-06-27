@@ -1,12 +1,7 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { MindsaiPrismaService } from 'src/prisma/mindsai_platform.prisma.service';
 import { Board, CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
-import {
-  CreateQueryException,
-  FindOneQueryException,
-  FindQueryException,
-  QueryException,
-} from '../../../common/commom.exception';
+import { FindOneQueryException, FindQueryException } from '../../../common/commom.exception';
 import { createException } from '../../../common/common.error-handler';
 import { ContentStatus } from './board.enum';
 import { AccountStatus } from '../user/user.enum';

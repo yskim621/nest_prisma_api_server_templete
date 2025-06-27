@@ -4,8 +4,6 @@ import { BoardRepository } from './board.repository';
 import {
   CreateQueryException, FindOneQueryException,
   FindQueryException,
-  QueryException, TransactionQueryException,
-  UpdateQueryException,
 } from '../../../common/commom.exception';
 import { createException, errorHandle } from '../../../common/common.error-handler';
 import { UserRepository } from '../user/user.repository';
