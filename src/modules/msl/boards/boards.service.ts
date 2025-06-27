@@ -5,7 +5,7 @@ import {
   CreateQueryException, FindOneQueryException,
   FindQueryException,
 } from '../../../common/commom.exception';
-import { createException, errorHandle } from '../../../common/common.error-handler';
+import { createException } from '../../../common/common.error-handler';
 import { UserRepository } from '../user/user.repository';
 
 @Injectable()
