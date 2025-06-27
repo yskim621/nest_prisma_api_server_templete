@@ -1,5 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
+import { Board, CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import { BoardRepository } from './board.repository';
 import {
   CreateQueryException, FindOneQueryException,
@@ -17,7 +17,7 @@ export class BoardsService {
     private userRepository: UserRepository,
   ) {}
 
-  async create(createBoardDto: CreateBoardDto) {
+  async create(createBoardDto: CreateBoardDto): Promise<Board> {
     try {
       const foundUser = await this.userRepository.findOne(createBoardDto.userId);
       if (!foundUser) {

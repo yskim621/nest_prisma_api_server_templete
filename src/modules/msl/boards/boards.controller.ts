@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus, HttpCode } from '@nestjs/common';
 import { BoardsService } from './boards.service';
-import { CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
+import { Board, CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import { CommonResponse } from '../../../common/common.interface';
 import { getDefaultResponse, getQueryErrRes } from '../../../common/common.response';
 import { ApiOkResponse } from '@nestjs/swagger';
@@ -13,17 +13,16 @@ export class BoardsController {
   constructor(private readonly boardsService: BoardsService) {}
 
   @Post('/create')
-  @ApiOkResponse({ type: CommonResponse, description: 'Board created successfully' })
-  async create(@Body() createBoardDto: CreateBoardDto, @Res() res: Response): Promise<void> {
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: Board, description: 'Board created successfully' })
+  async create(@Body() createBoardDto: CreateBoardDto) {
     try {
-      const createdBoard = await this.boardsService.create(createBoardDto);
-      const _response: CommonResponse = getDefaultResponse();
-      _response.data = { board: createdBoard };
-
-      res.status(HttpStatus.OK).json(_response);
+      // const createdBoard = await this.boardsService.create(createBoardDto);
+      // const _response: CommonResponse = getDefaultResponse();
+      // _response.data = { board: createdBoard };
+      return await this.boardsService.create(createBoardDto);
     } catch (error) {
-      const commonResponse = errorHandle(error, 'central-common');
-      res.status(HttpStatus.OK).json(commonResponse);
+      return errorHandle(error, 'central-common');
     }
   }
 
@@ -33,7 +32,7 @@ export class BoardsController {
   }
 
   @Get()
-  @ApiOkResponse({ type: [CreateBoardDto], description: 'List of all boards' })
+  @ApiOkResponse({ type: [Board], description: 'List of all boards' })
   findAll() {
     try {
       return this.boardsService.getAllBoards();

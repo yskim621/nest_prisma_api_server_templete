@@ -51,9 +51,6 @@ async function bootstrap() {
   app.useGlobalInterceptors(new EveryInterceptor());
   // 전역 인터셉터 등록 - 모든 응답을 ResponseInterceptor 가공
   app.useGlobalInterceptors(new ResponseInterceptor());
-  // 전역 인터셉터 등록 - 모든 예외를 HttpExceptionFilter 가공
-  // app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalFilters(new AllExceptionsFilter());
   // CORS 활성화 (위에서 설정했지만 이중 설정해도 문제 없음)
   app.enableCors();
   // 웹사이트에서 XSS(Cross Site Scripting)공격 방지[인라인 js or css 블럭]

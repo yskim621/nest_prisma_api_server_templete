@@ -1,5 +1,6 @@
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { AccountStatus } from '../user.enum';
 
 export class UserDto {
   @ApiProperty()
@@ -17,7 +18,7 @@ export class UserDto {
   name?: string;
 
   @ApiProperty()
-  @IsString()
+  @IsEnum(AccountStatus, { message: 'Invalid account status' })
   accountStatus: AccountStatus;
 }
 
@@ -37,6 +38,7 @@ export class CreateUserDto {
   name?: string;
 
   @ApiProperty()
+  @IsEnum(AccountStatus, { message: 'Invalid account status' })
   accountStatus: AccountStatus;
 }
 

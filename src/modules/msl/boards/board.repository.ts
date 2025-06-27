@@ -1,6 +1,6 @@
 import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { MindsaiPrismaService } from 'src/prisma/mindsai_platform.prisma.service';
-import { CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
+import { Board, CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import {
   CreateQueryException,
   FindOneQueryException,
@@ -8,23 +8,30 @@ import {
   QueryException,
 } from '../../../common/commom.exception';
 import { createException } from '../../../common/common.error-handler';
+import { ContentStatus } from './board.enum';
+import { AccountStatus } from '../user/user.enum';
 
 // 기능과 상관없는 샘플용 코드
 @Injectable()
 export class BoardRepository {
   constructor(private prisma: MindsaiPrismaService) {}
 
-  async create(data: CreateBoardDto) {
+  async create(data: CreateBoardDto): Promise<Board> {
     try {
-      return await this.prisma.board.create({
+      const createdBoard = await this.prisma.board.create({
         data: {
           title: data.title,
           description: data.description,
+          status: data.status as string, // 기본값 설정
           user: {
             connect: { id: data.userId },
           },
         },
       });
+      return {
+        ...createdBoard,
+        status: createdBoard.status as ContentStatus,
+      };
     } catch (error) {
       if (error instanceof HttpException) {
         createException(error);
@@ -77,6 +84,7 @@ export class BoardRepository {
           throw new FindOneQueryException();
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
         if (foundUserData.accountStatus === AccountStatus.ACTIVE) {
           return;
         }
