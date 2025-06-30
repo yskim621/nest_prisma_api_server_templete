@@ -41,6 +41,7 @@ const logMessageFormat = winston.format.printf((info: TransformableInfo) => {
     messageParts.push(stringify(rest[key]));
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-base-to-string
   const logContent = messageParts.join(' ');
 
   return `${formattedTimeStamp} [Instance ${instance}] ${level}: ${logContent}`;
@@ -50,12 +51,16 @@ const consoleLogFormat = winston.format.combine(
   winston.format.colorize(),
   winston.format.errors({ stack: true }),
   winston.format((info: TransformableInfo, opts) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const args = info[Symbol.for('splat')] as any;
     if (args) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
       args.forEach(arg => {
         if (typeof arg === 'object') {
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string,@typescript-eslint/restrict-plus-operands
           info.message += ' ' + stringify(arg);
         } else {
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string,@typescript-eslint/restrict-plus-operands
           info.message += ' ' + arg;
         }
       });
@@ -145,22 +150,27 @@ const logger = winston.createLogger({
 
 export class WinstonLoggerService implements LoggerService {
   log(message: any, context?: string) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     logger.log({ level: 'info', message, context });
   }
 
   error(message: any, trace?: string, context?: string) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     logger.log({ level: 'error', message, trace, context });
   }
 
   warn(message: any, context?: string) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     logger.log({ level: 'warn', message, context });
   }
 
   debug(message: any, context?: string) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     logger.log({ level: 'debug', message, context });
   }
 
   verbose(message: any, context?: string) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     logger.log({ level: 'verbose', message, context });
   }
 }
@@ -173,23 +183,30 @@ export class LoggerMiddleware implements NestMiddleware {
     if (req.originalUrl !== '/metrics') {
       this.requestLog(req);
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const oldWrite = res.write;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const oldEnd = res.end;
 
       const chunks: Buffer[] = [];
 
       res.write = (...args: any[]) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const chunk = args[0];
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         chunks.push(chunk);
-        // eslint-disable-next-line prefer-spread
+        // eslint-disable-next-line prefer-spread,@typescript-eslint/no-unsafe-return
         return oldWrite.apply(res, args);
       };
 
       res.end = (...args: any[]) => {
         if (args[0]) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const chunk = args[0];
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           chunks.push(chunk);
         }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return oldEnd.apply(res, args);
       };
 
@@ -203,6 +220,7 @@ export class LoggerMiddleware implements NestMiddleware {
   }
 
   private requestLog(req: Request) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const { body, params, query } = req;
     const requestUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
     const messageLines = [
