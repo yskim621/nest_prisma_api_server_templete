@@ -25,40 +25,11 @@ export class CommonResponse<T = any> {
   data: T[] | T | null | undefined;
 }
 
-export class CommonResponseWithPagination<T> {
-  @ApiProperty({
-    description: '성공 여부',
-  })
-  readonly result: CommmonResponseResult;
-
-  @ApiProperty({
-    description: '결과 값',
-  })
-  readonly data: T[] | null | undefined;
-
+export class CommonResponseWithPagination extends CommonResponse {
   @ApiProperty({
     description: '페이징 정보',
   })
   readonly pagination: Pagination;
-}
-
-export interface CommmonResponseResult {
-  /**
-   * 2000(성공), 4xxx(클라이언트 에러), 5xxx(서버 에러), 9999(unknown)
-   * default: 5000
-   * central: 5100
-   * notification: 5200
-   * external: 5300
-   * payment: 5400
-   * user: 4500
-   * admin: 4600
-   */
-  code: string;
-  isSuccess: boolean;
-  message: string;
-  resSystem: ResSystem;
-  comSystem: ComSystem;
-  resTime: Date;
 }
 
 /**
