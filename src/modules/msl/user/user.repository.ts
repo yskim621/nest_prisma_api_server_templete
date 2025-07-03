@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 import { MindsaiPrismaService } from 'src/prisma/mindsai_platform.prisma.service';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class UserRepository {
@@ -41,7 +40,7 @@ export class UserRepository {
     return this.prisma.user.delete({ where: { id } });
   }
 
-  async withTransaction<T>(callback: (tx: Prisma.TransactionClient) => Promise<T>) {
-    return this.prisma.$transaction(callback);
-  }
+  // async withTransaction<T>(callback: (tx: Prisma.TransactionClient) => Promise<T>) {
+  //   return this.prisma.$transaction(callback);
+  // }
 }

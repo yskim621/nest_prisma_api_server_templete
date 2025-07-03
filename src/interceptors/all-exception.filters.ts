@@ -1,5 +1,5 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
-import { Prisma } from '../../prisma/generated/mindsai_platform';
+import { Prisma } from '../../prisma/generated/nest_prisma_template';
 import { sendNotification } from 'src/utils/notification';
 import * as fs from 'fs';
 import * as path from 'path';

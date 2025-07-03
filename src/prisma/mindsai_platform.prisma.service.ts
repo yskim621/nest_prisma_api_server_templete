@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import { PrismaClient, Prisma } from '../../prisma/generated/mindsai_platform';
+import { PrismaClient, Prisma } from '../../prisma/generated/nest_prisma_template';
 
 
 type PrismaQueryEvent = {
