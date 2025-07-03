@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "./generated/mindsai_platform"
+  output   = "./generated/nest_prisma_template"
 }
 
 datasource db {

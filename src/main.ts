@@ -12,6 +12,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { MindsSignalModule } from './routes/minds-signal.module';
 import { AllExceptionsFilter, PrismaExceptionFilter } from './interceptors/all-exception.filters';
 import helmet from 'helmet';
+import { BadRequestClientException, ClientException } from './common/commom.exception';
 
 const originalLog = console.log;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -43,7 +44,27 @@ async function bootstrap() {
     logger: new WinstonLoggerService(),
   });
   // 전역 유효성 검사 파이프 설정 (DTO 기반 자동 검증)
-  app.useGlobalPipes(new ValidationPipe());
+  // app.useGlobalPipes(new ValidationPipe());
+
+  // dto 타입 제한
+  app.useGlobalPipes(
+    new ValidationPipe({
+      // dto 정의한 타입만 허용
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      // dto 타입 자동 변환
+      transform: true,
+      transformOptions: {
+        // 타입 암묵적 허용
+        enableImplicitConversion: true,
+      },
+      exceptionFactory: (errors) => {
+        logger.error('exceptionFactory', errors);
+        return new BadRequestClientException('central-common', errors);
+      },
+    }),
+  );
+
   // 전역 에러 처리
   app.useGlobalFilters(new AllExceptionsFilter());
   // sql 에러 처리
