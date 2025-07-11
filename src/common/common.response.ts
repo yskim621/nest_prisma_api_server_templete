@@ -22,6 +22,18 @@ const getCallerLine = (): { callerLine: string; stack: string } => {
   return { callerLine, stack };
 };
 
+export function getSuccessResponse<T>(comSystem: ComSystem = 'central-common', data: T | T[] = null): CommonResponse<T> {
+  return {
+    code: '2000',
+    isSuccess: true,
+    message: 'This request is processed',
+    resSystem: 'c',
+    comSystem: comSystem,
+    resTime: new Date(),
+    data,
+  };
+}
+
 export function getDefaultResponse<T>(data: T | T[] = null): CommonResponse<T> {
   return {
     code: '2000',

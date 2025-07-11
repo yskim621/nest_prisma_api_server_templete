@@ -4,6 +4,7 @@ import { Board, CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { FindQueryException } from '../../../common/commom.exception';
 import { errorHandle } from '../../../common/common.error-handler';
+import { getSuccessResponse } from '../../../common/common.response';
 
 @Controller('boards')
 export class BoardsController {
@@ -14,7 +15,9 @@ export class BoardsController {
   @ApiOkResponse({ type: Board, description: 'Board created successfully' })
   async create(@Body() createBoardDto: CreateBoardDto, @Req() request: Request) {
     try {
-      return await this.boardsService.create(createBoardDto);
+      // return await this.boardsService.create(createBoardDto);
+      const createdBoard = await this.boardsService.create(createBoardDto);
+      return getSuccessResponse('user-central', createdBoard);
     } catch (error) {
       return await errorHandle(error, request.url, 'central-common');
     }
