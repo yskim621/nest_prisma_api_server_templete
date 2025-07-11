@@ -1,6 +1,6 @@
 import { CommonResponse, ComSystem } from './common.interface';
 import { getQueryErrRes, getClientErrRes, getServerErrRes, getUnknownErrResponse } from './common.response';
-import * as Exceptions from './commom.exception';
+import * as Exceptions from './common.exception';
 import { HttpException } from '@nestjs/common';
 import type { DbErrType, ClientErrType, ServerErrType } from './common.type';
 import { sendNotification } from '../utils/notification';

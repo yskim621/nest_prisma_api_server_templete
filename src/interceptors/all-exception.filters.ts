@@ -7,7 +7,7 @@ import { CommonResponse } from '../common/common.interface';
 import { Response } from 'express';
 import { DbErrType } from '../common/common.type';
 import { getQueryErrRes } from '../common/common.response';
-import { QueryException } from '../common/commom.exception';
+import { QueryException } from '../common/common.exception';
 
 const packageJsonPath = path.join(__dirname, '..', '..', 'package.json');
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
