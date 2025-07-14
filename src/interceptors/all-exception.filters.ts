@@ -91,13 +91,19 @@ export class ForbiddenFilter implements ExceptionFilter {
   }
 }
 
-@Catch(HttpExceptionsFilter)
+@Catch(HttpException)
 export class HttpExceptionsFilter implements ExceptionFilter {
-  async catch(exception: HttpExceptionsFilter, host: ArgumentsHost) {
+  async catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<Request>();
+    const res = ctx.getResponse<Response>();
 
-    return await errorHandle(exception, request.url, 'central-common');
+    const result = await errorHandle(exception, request.url, 'central-common');
+
+    res.status(HttpStatus.OK).json({
+      ...result,
+      path: request.url,
+    });
   }
 }
 

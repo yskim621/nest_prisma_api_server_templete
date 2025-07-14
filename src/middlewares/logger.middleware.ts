@@ -6,6 +6,7 @@ import { TransformableInfo } from 'logform';
 import moment from 'moment-timezone';
 import { join } from 'path';
 import DailyRotateFile from 'winston-daily-rotate-file';
+import { ServiceUnavailableServerException } from '../common/common.exception';
 
 const logDir: string = join(__dirname, '../../../logs');
 
@@ -180,6 +181,8 @@ export class LoggerMiddleware implements NestMiddleware {
   private readonly logger = new WinstonLoggerService();
 
   use(req: Request, res: Response, next: NextFunction) {
+    // throw new ServiceUnavailableServerException('central-common');
+
     if (req.originalUrl !== '/metrics') {
       this.requestLog(req);
 
@@ -195,7 +198,7 @@ export class LoggerMiddleware implements NestMiddleware {
         const chunk = args[0];
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         chunks.push(chunk);
-        // eslint-disable-next-line prefer-spread,@typescript-eslint/no-unsafe-return
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return oldWrite.apply(res, args);
       };
 
