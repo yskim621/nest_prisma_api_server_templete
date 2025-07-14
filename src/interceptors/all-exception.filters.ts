@@ -1,4 +1,14 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  HttpStatus,
+  Logger,
+  BadRequestException,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Prisma } from '../../prisma/generated/nest_prisma_template';
 import { sendNotification } from 'src/utils/notification';
 import * as fs from 'fs';
@@ -7,7 +17,8 @@ import { CommonResponse } from '../common/common.interface';
 import { Response } from 'express';
 import { DbErrType } from '../common/common.type';
 import { getQueryErrRes } from '../common/common.response';
-import { QueryException } from '../common/commom.exception';
+import { QueryException, UnauthorizedClientException } from '../common/common.exception';
+import { errorHandle } from '../common/common.error-handler';
 
 const packageJsonPath = path.join(__dirname, '..', '..', 'package.json');
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -66,6 +77,27 @@ export class NotFoundFilter implements ExceptionFilter {
       ...result,
       timestamp: new Date().toISOString(),
     });
+  }
+}
+
+@Catch(UnauthorizedClientException, ForbiddenException)
+export class ForbiddenFilter implements ExceptionFilter {
+  async catch(exception: UnauthorizedClientException, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const request = ctx.getRequest<Request>();
+    const response = ctx.getResponse<Response>();
+
+    return await errorHandle(exception, request.url, 'central-common');
+  }
+}
+
+@Catch(HttpExceptionsFilter)
+export class HttpExceptionsFilter implements ExceptionFilter {
+  async catch(exception: HttpExceptionsFilter, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const request = ctx.getRequest<Request>();
+
+    return await errorHandle(exception, request.url, 'central-common');
   }
 }
 
