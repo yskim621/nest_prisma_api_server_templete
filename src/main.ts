@@ -10,7 +10,12 @@ import { WinstonLoggerService } from './middlewares/logger.middleware';
 import { SERVICE_DOMAIN, PORT, REDIS_HOST, REDIS_PORT } from './environment';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { MindsSignalModule } from './routes/minds-signal.module';
-import { AllExceptionsFilter, PrismaExceptionFilter } from './interceptors/all-exception.filters';
+import {
+  AllExceptionsFilter,
+  ForbiddenFilter,
+  HttpExceptionsFilter,
+  PrismaExceptionFilter,
+} from './interceptors/all-exception.filters';
 import helmet from 'helmet';
 import { BadRequestClientException, ClientException } from './common/common.exception';
 
@@ -66,9 +71,8 @@ async function bootstrap() {
   );
 
   // 전역 에러 처리
-  app.useGlobalFilters(new AllExceptionsFilter());
-  // sql 에러 처리
-  app.useGlobalFilters(new PrismaExceptionFilter());
+  app.useGlobalFilters(new HttpExceptionsFilter());
+
   // 전역 인터셉터 등록 - 모든 요청에 대해 EveryInterceptor 실행
   app.useGlobalInterceptors(new EveryInterceptor());
   // 전역 인터셉터 등록 - 모든 응답을 ResponseInterceptor 가공
