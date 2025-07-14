@@ -101,7 +101,7 @@ async function bootstrap() {
   console.log(`✅ Redis 연결 → ${REDIS_HOST}:${REDIS_PORT}`);
 
   const SwaggerUserOptions = new DocumentBuilder()
-    .setTitle(`MindsAI Minds Traffic Light API docs ${process.env.NODE_ENV}`)
+    .setTitle(`MindsAI Minds.Signal API docs ${process.env.NODE_ENV}`)
     .setDescription('MindsAI Minds Traffic Light API docs')
     .setVersion('1.0')
     .addBearerAuth({
