@@ -10,14 +10,9 @@ import { WinstonLoggerService } from './middlewares/logger.middleware';
 import { SERVICE_DOMAIN, PORT, REDIS_HOST, REDIS_PORT } from './environment';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { MindsSignalModule } from './routes/minds-signal.module';
-import {
-  AllExceptionsFilter,
-  ForbiddenFilter,
-  HttpExceptionsFilter,
-  PrismaExceptionFilter,
-} from './interceptors/all-exception.filters';
+import { HttpExceptionsFilter } from './interceptors/all-exception.filters';
 import helmet from 'helmet';
-import { BadRequestClientException, ClientException } from './common/common.exception';
+import { BadRequestClientException } from './common/common.exception';
 
 const originalLog = console.log;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
