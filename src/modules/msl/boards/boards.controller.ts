@@ -2,9 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpCode
 import { BoardsService } from './boards.service';
 import { Board, CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import { ApiOkResponse } from '@nestjs/swagger';
-import { FindQueryException } from '../../../common/common.exception';
-import { errorHandle } from '../../../common/common.error-handler';
+import { FindQueryException } from '../../../common/exceptions/common.exception';
+import { errorHandle } from '../../../common/exceptions/common.error-handler';
 import { getSuccessResponse } from '../../../common/common.response';
+import { CustomParseIntPipe } from '../../../common/pipes/custom-parse-int.pipe';
 
 @Controller('boards')
 export class BoardsController {
@@ -40,12 +41,12 @@ export class BoardsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.boardsService.findOne(+id);
+  findOne(@Param('id', CustomParseIntPipe) id: number) {
+    return this.boardsService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBoardDto: UpdateBoardDto) {
+  update(@Param('id') id: number, @Body() updateBoardDto: UpdateBoardDto) {
     return this.boardsService.update(+id, updateBoardDto);
   }
 

@@ -1,9 +1,9 @@
-import { CommonResponse, ComSystem } from './common.interface';
-import { getQueryErrRes, getClientErrRes, getServerErrRes, getUnknownErrResponse } from './common.response';
+import { CommonResponse, ComSystem } from '../common.interface';
+import { getQueryErrRes, getClientErrRes, getServerErrRes, getUnknownErrResponse } from '../common.response';
 import * as Exceptions from './common.exception';
 import { HttpException } from '@nestjs/common';
-import type { DbErrType, ClientErrType, ServerErrType } from './common.type';
-import { sendNotification } from '../utils/notification';
+import type { DbErrType, ClientErrType, ServerErrType } from '../common.type';
+import { sendNotification } from '../../utils/notification';
 import path from 'path';
 import fs from 'fs';
 
@@ -63,11 +63,10 @@ const serverExceptionMap = {
   unknown: Exceptions.UnknownServerException,
 } as const;
 
-const packageJsonPath = path.join(__dirname, '..', '..', 'package.json');
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-const packageJsonData = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+const packageJsonData = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-const packageName = packageJsonData.name;
+const packageName: string = packageJsonData?.name;
 
 const getErrorMessage = (type: string, errPath?: string): string => {
   return `

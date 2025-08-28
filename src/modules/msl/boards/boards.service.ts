@@ -4,8 +4,8 @@ import { BoardRepository } from './board.repository';
 import {
   CreateQueryException, FindOneQueryException,
   FindQueryException,
-} from '../../../common/common.exception';
-import { generateException } from '../../../common/common.error-handler';
+} from '../../../common/exceptions/common.exception';
+import { generateException } from '../../../common/exceptions/common.error-handler';
 import { UserRepository } from '../user/user.repository';
 
 @Injectable()

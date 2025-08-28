@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { ClientErrType, DbErrType, ServerErrType } from './common.type';
-import { getQueryErrRes, getClientErrRes, getServerErrRes } from './common.response';
-import { ComSystem } from './common.interface';
+import { ClientErrType, DbErrType, ServerErrType } from '../common.type';
+import { getQueryErrRes, getClientErrRes, getServerErrRes } from '../common.response';
+import { ComSystem } from '../common.interface';
 
 export class QueryException extends HttpException {
   constructor(type: DbErrType, error?: unknown) {
