@@ -22,7 +22,7 @@ export class UserDto {
 
   @ApiProperty()
   @IsEnum(AccountStatus, { message: 'Invalid account status' })
-  accountStatus: AccountStatus;
+  accountStatus: string;
 
   @ApiProperty({ description: 'Created DateTime' })
   createdAt: Date;

@@ -7,11 +7,11 @@ export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
   async create(data: CreateUserDto) {
-    return this.userRepository.create(data);
+    return await this.userRepository.create(data);
   }
 
   async getAllUsers() {
-    return this.userRepository.findAll();
+    return await this.userRepository.findAll();
   }
 
   async findOne(id: number) {
@@ -25,10 +25,10 @@ export class UserService {
   }
 
   async update(id: number, data: UpdateUserDto) {
-    return this.userRepository.update(id, data);
+    return await this.userRepository.update(id, data);
   }
 
   async remove(id: number) {
-    return this.userRepository.remove(id);
+    return await this.userRepository.remove(id);
   }
 }

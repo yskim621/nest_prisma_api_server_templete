@@ -6,7 +6,7 @@ import { TransformableInfo } from 'logform';
 import moment from 'moment-timezone';
 import { join } from 'path';
 import DailyRotateFile from 'winston-daily-rotate-file';
-import { ServiceUnavailableServerException } from '../common/common.exception';
+import { ServiceUnavailableServerException } from '../common/exceptions/common.exception';
 
 const logDir: string = join(__dirname, '../../../logs');
 

@@ -9,22 +9,21 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
-import { Prisma } from '../../prisma/generated/nest_prisma_template';
 import { sendNotification } from 'src/utils/notification';
 import * as fs from 'fs';
 import * as path from 'path';
-import { CommonResponse } from '../common/common.interface';
+import { CommonResponse } from '../common.interface';
 import { Response } from 'express';
-import { DbErrType } from '../common/common.type';
-import { getQueryErrRes } from '../common/common.response';
-import { QueryException, UnauthorizedClientException } from '../common/common.exception';
-import { errorHandle } from '../common/common.error-handler';
+import { DbErrType } from '../common.type';
+import { getQueryErrRes } from '../common.response';
+import { QueryException, UnauthorizedClientException } from './common.exception';
+import { errorHandle } from './common.error-handler';
+import { Prisma } from 'prisma/generated/nest_prisma_template';
 
-const packageJsonPath = path.join(__dirname, '..', '..', 'package.json');
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-const packageJsonData = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+const packageJsonData = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-const packageName = packageJsonData.name;
+const packageName: string = packageJsonData?.name;
 
 @Catch(BadRequestException)
 export class ValidationExceptionFilter implements ExceptionFilter<BadRequestException> {
