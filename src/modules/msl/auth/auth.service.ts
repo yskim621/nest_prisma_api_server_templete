@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 // import { PrismaService } from 'nestjs-prisma';
-import { MindsaiPrismaService } from 'src/prisma/mindsai_platform.prisma.service';
+import { MindsaiPrismaService } from 'src/prisma/nest_template.prisma.service';
 import { LoginDto } from './dto/login.dto';
 // import * as bcrypt from 'bcrypt';
 

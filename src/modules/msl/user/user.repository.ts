@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto, UserDto } from './dto/user.dto';
-import { MindsaiPrismaService } from 'src/prisma/mindsai_platform.prisma.service';
+import { MindsaiPrismaService } from 'src/prisma/nest_template.prisma.service';
 
 @Injectable()
 export class UserRepository {

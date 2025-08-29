@@ -31,3 +31,11 @@ model Board {
   @@index([userId], map: "board_user_id_fk")
   @@map("board")
 }
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  room      String // 채팅방 이름
+  author    String
+  content   String
+  createdAt DateTime @default(now())
+}

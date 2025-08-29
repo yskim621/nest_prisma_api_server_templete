@@ -65,13 +65,12 @@ async function bootstrap() {
     }),
   );
 
-  // 전역 에러 처리
-  app.useGlobalFilters(new HttpExceptionsFilter());
+  // app.useGlobalFilters(new HttpExceptionsFilter());
 
-  // 전역 인터셉터 등록 - 모든 요청에 대해 EveryInterceptor 실행
-  app.useGlobalInterceptors(new EveryInterceptor());
-  // 전역 인터셉터 등록 - 모든 응답을 ResponseInterceptor 가공
-  app.useGlobalInterceptors(new ResponseInterceptor());
+  // app.useGlobalInterceptors(new EveryInterceptor());
+
+  // app.useGlobalInterceptors(new ResponseInterceptor());
+
   // CORS 활성화 (위에서 설정했지만 이중 설정해도 문제 없음)
   app.enableCors();
   // 웹사이트에서 XSS(Cross Site Scripting)공격 방지[인라인 js or css 블럭]
@@ -87,13 +86,15 @@ async function bootstrap() {
       },
     }),
   );
+
   // JSON 바디 파서 설정 (요청 본문 용량 제한을 50MB로 설정)
   app.use(json({ limit: '50mb' }));
+
   // URL 인코딩된 바디 파서 설정 (폼 전송 방식 지원, limit도 50MB로 설정)
   app.use(urlencoded({ limit: '50mb', extended: true }));
+
   // WebSocket 어댑터 등록 - 기본적으로는 Socket.IO 기반 WebSocket 처리용
   app.useWebSocketAdapter(new IoAdapter(app));
-  console.log(`✅ Redis 연결 → ${REDIS_HOST}:${REDIS_PORT}`);
 
   const SwaggerUserOptions = new DocumentBuilder()
     .setTitle(`MindsAI Minds.Signal API docs ${process.env.NODE_ENV}`)
@@ -112,6 +113,8 @@ async function bootstrap() {
     include: [MindsSignalModule],
   });
   SwaggerModule.setup('api/msl', app, documentMtl);
+
+  logger.log(`✅ [ Redis 연결 ] → ${REDIS_HOST}:${REDIS_PORT}`);
 
   await app.listen(process.env.PORT);
 
