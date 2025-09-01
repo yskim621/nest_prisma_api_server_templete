@@ -1,5 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { MindsaiPrismaService } from 'src/prisma/mindsai_platform.prisma.service';
+import { MindsaiPrismaService } from 'src/prisma/nest_template.prisma.service';
 import { Board, CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import { FindOneQueryException, FindQueryException } from '../../../common/exceptions/common.exception';
 import { generateException } from '../../../common/exceptions/common.error-handler';

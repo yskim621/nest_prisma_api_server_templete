@@ -1,6 +1,6 @@
 // prisma.module.ts
 import { Global, Module } from '@nestjs/common';
-import { MindsaiPrismaService } from './mindsai_platform.prisma.service';
+import { MindsaiPrismaService } from './nest_template.prisma.service';
 
 @Global()
 @Module({
