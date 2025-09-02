@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { SocketGateway } from './socket.gateway';
 
 @Module({
-  // imports: [],
+  imports: [],
   providers: [SocketGateway],
   exports: [SocketGateway],
 })

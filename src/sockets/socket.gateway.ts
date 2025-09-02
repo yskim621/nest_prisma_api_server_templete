@@ -1,9 +1,11 @@
 import { WebSocketGateway, SubscribeMessage, MessageBody, WebSocketServer, ConnectedSocket } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MindsaiPrismaService } from '../prisma/nest_template.prisma.service';
+import { SOCKETPORT } from '../environment';
 
 // 게이트웨이 설정 (포트, CORS 등)
-@WebSocketGateway({
+@WebSocketGateway(+SOCKETPORT, {
+  transports: ['websocket', 'polling'],
   cors: {
     origin: '*', // 실제 프로덕션에서는 허용할 출처를 명시해야 합니다.
   },
@@ -26,8 +28,8 @@ export class SocketGateway {
 
   // 'joinRoom' 이벤트를 구독
   @SubscribeMessage('joinRoom')
-  handleJoinRoom(@ConnectedSocket() client: Socket, @MessageBody() room: string): void {
-    client.join(room);
+  async handleJoinRoom(@ConnectedSocket() client: Socket, @MessageBody() room: string): Promise<void> {
+    await client.join(room);
     console.log(`Client ${client.id} joined room ${room}`);
     // 방 입장 환영 메시지 (본인에게만)
     client.emit('message', `Welcome to room ${room}!`);
