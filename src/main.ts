@@ -1,17 +1,14 @@
+import helmet from 'helmet';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { urlencoded, json } from 'body-parser';
-import { EveryInterceptor } from './interceptors/every.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Logger, ValidationPipe } from '@nestjs/common';
-import { ResponseInterceptor } from './interceptors/transform.response.interceptor';
 import { WinstonLoggerService } from './middlewares/logger.middleware';
 import { SERVICE_DOMAIN, PORT, REDIS_HOST, REDIS_PORT } from './environment';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { MindsSignalModule } from './routes/minds-signal.module';
-import { HttpExceptionsFilter } from './common/exceptions/all-exception.filters';
-import helmet from 'helmet';
 import { BadRequestClientException } from './common/exceptions/common.exception';
 
 const originalLog = console.log;
