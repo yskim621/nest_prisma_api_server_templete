@@ -337,6 +337,114 @@ pm2 monit
 
 ---
 
+## Docker
+
+### 파일 구조
+
+```
+├── Dockerfile              # 프로덕션 빌드 (멀티스테이지)
+├── Dockerfile.dev          # 개발용 (Hot Reload)
+├── docker-compose.yml      # 프로덕션 환경
+├── docker-compose.dev.yml  # 개발 환경
+├── .dockerignore           # Docker 빌드 제외 파일
+└── .env.docker.example     # Docker 환경 변수 예시
+```
+
+### 빠른 시작 (프로덕션)
+
+```bash
+# 환경 변수 설정
+cp env.docker.example .env
+
+# 전체 스택 실행 (API + MySQL + Redis)
+docker-compose up -d
+
+# 로그 확인
+docker-compose logs -f api
+
+# 종료
+docker-compose down
+```
+
+### 개발 환경 (Hot Reload)
+
+```bash
+# 개발 환경 실행
+docker-compose -f docker-compose.dev.yml up -d
+
+# 로그 확인
+docker-compose -f docker-compose.dev.yml logs -f api
+
+# 종료
+docker-compose -f docker-compose.dev.yml down
+```
+
+### 개별 서비스 실행
+
+```bash
+# MySQL만 실행
+docker-compose up -d mysql
+
+# Redis만 실행
+docker-compose up -d redis
+
+# API만 빌드 및 실행
+docker-compose up -d --build api
+```
+
+### 데이터베이스 마이그레이션
+
+```bash
+# 컨테이너 내부에서 Prisma 마이그레이션
+docker-compose exec api npx prisma db push
+
+# 또는 로컬에서 (Docker MySQL 연결)
+DATABASE_URL="mysql://appuser:password@localhost:3306/nest_template" npx prisma db push
+```
+
+### 유용한 명령어
+
+```bash
+# 컨테이너 상태 확인
+docker-compose ps
+
+# API 컨테이너 쉘 접속
+docker-compose exec api sh
+
+# MySQL 접속
+docker-compose exec mysql mysql -u root -p
+
+# Redis CLI 접속
+docker-compose exec redis redis-cli
+
+# 볼륨 포함 완전 삭제
+docker-compose down -v
+
+# 이미지 재빌드
+docker-compose build --no-cache api
+```
+
+### Docker 환경 변수
+
+| 변수 | 설명 | 기본값 |
+|------|------|--------|
+| DB_NAME | 데이터베이스 이름 | nest_template |
+| DB_USER | DB 사용자 | appuser |
+| DB_PASSWORD | DB 비밀번호 | password |
+| DB_ROOT_PASSWORD | DB 루트 비밀번호 | rootpassword |
+| REDIS_PASSWORD | Redis 비밀번호 | (없음) |
+
+### 포트 매핑
+
+| 서비스 | 내부 포트 | 외부 포트 |
+|--------|----------|----------|
+| API | 4010 | 4010 |
+| WebSocket | 4011 | 4011 |
+| MySQL | 3306 | 3306 |
+| Redis | 6379 | 6379 |
+
+---
+
 ## 새 모듈 추가하기
 
 ### 1. 모듈 생성
@@ -453,7 +561,7 @@ export class MindsSignalModule {}
 
 ## 개선 예정 사항
 
-- [ ] Docker + docker-compose 설정
+- [x] Docker + docker-compose 설정
 - [ ] CI/CD 파이프라인 (GitHub Actions)
 - [ ] Rate Limiting 적용
 - [ ] Role-based Access Control (RBAC)
