@@ -12,11 +12,11 @@ services:
     restart: unless-stopped
     ports:
       - "${PORT:-4010}:4010"
-      - "${SOCKETPORT:-4011}:4011"
+      - "${SOCKET_PORT:-4011}:4011"
     environment:
       - NODE_ENV=${NODE_ENV:-production}
       - PORT=4010
-      - SOCKETPORT=4011
+      - SOCKET_PORT=4011
       - PRISMA_DATABASE_URL=mysql://${DB_USER:-root}:${DB_PASSWORD:-password}@mysql:3306/${DB_NAME:-nest_template}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -50,7 +50,7 @@ services:
   # MySQL Database
   # ================================
   mysql:
-    image: mysql:8.0
+    image: mysql:8.4.8
     container_name: nest-mysql
     restart: unless-stopped
     ports:

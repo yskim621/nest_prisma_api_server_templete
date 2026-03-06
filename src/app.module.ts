@@ -14,6 +14,8 @@ import { MetricMiddleware, Pm2MetricsService } from './middlewares/metric.middle
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { HealthModule } from './health/health.module';
 import { SocketModule } from './sockets/socket.module';
+import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
+import { SampleQueueModule } from './rabbitmq/sample-queue/sample-queue.module';
 import { EveryInterceptor } from './interceptors/every.interceptor';
 import { HttpExceptionsFilter } from './common/exceptions/all-exception.filters';
 import { ResponseInterceptor } from './interceptors/transform.response.interceptor';
@@ -38,6 +40,8 @@ import { ResponseInterceptor } from './interceptors/transform.response.intercept
     RedisModule,
     UtilsModule,
     HealthModule,
+    RabbitMQModule,
+    SampleQueueModule,
   ],
   controllers: [AppController, MetricsController],
   providers: [
