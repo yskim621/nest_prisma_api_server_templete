@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
-import { connect, Channel, ChannelModel, Replies } from 'amqplib';
+import { connect, Channel, ChannelModel, Replies, ConsumeMessage } from 'amqplib';
 
 @Injectable()
 export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
@@ -36,7 +36,8 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
         this.logger.warn('RabbitMQ connection closed');
       });
     } catch (error) {
-      this.logger.error('Failed to connect to RabbitMQ:', error.message);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.error('Failed to connect to RabbitMQ:', errorMessage);
       throw error;
     }
   }
@@ -51,7 +52,8 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       }
       this.logger.log('RabbitMQ connection closed');
     } catch (error) {
-      this.logger.error('Error closing RabbitMQ connection:', error.message);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.error('Error closing RabbitMQ connection:', errorMessage);
     }
   }
 
@@ -70,12 +72,13 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       this.logger.debug(`Message published to queue "${queue}": ${JSON.stringify(message)}`);
       return result;
     } catch (error) {
-      this.logger.error(`Failed to publish message to queue "${queue}":`, error.message);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to publish message to queue "${queue}":`, errorMessage);
       throw error;
     }
   }
 
-  /**
+  /*
    * 큐 메시지 소비 (Consumer)
    */
   async consume(queue: string, callback: (message: object) => Promise<void>): Promise<void> {
@@ -87,27 +90,40 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
 
       await this.channel.consume(
         queue,
-        async (msg) => {
+        (msg: ConsumeMessage | null) => {
           if (msg) {
-            try {
-              const content = JSON.parse(msg.content.toString());
-              this.logger.debug(`Message received from queue "${queue}": ${JSON.stringify(content)}`);
-
-              await callback(content);
-
-              this.channel.ack(msg);
-              this.logger.debug(`Message acknowledged`);
-            } catch (error) {
-              this.logger.error(`Error processing message:`, error.message);
-              this.channel.nack(msg, false, true);
-            }
+            void this.processMessage(msg, queue, callback);
           }
         },
         { noAck: false },
       );
     } catch (error) {
-      this.logger.error(`Failed to consume messages from queue "${queue}":`, error.message);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to consume messages from queue "${queue}":`, errorMessage);
       throw error;
+    }
+  }
+
+  /**
+   * 메시지 처리 (내부 헬퍼)
+   */
+  private async processMessage(
+    msg: ConsumeMessage,
+    queue: string,
+    callback: (message: object) => Promise<void>,
+  ): Promise<void> {
+    try {
+      const content = JSON.parse(msg.content.toString()) as object;
+      this.logger.debug(`Message received from queue "${queue}": ${JSON.stringify(content)}`);
+
+      await callback(content);
+
+      this.channel.ack(msg);
+      this.logger.debug(`Message acknowledged`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Error processing message:`, errorMessage);
+      this.channel.nack(msg, false, true);
     }
   }
 
