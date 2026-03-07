@@ -16,6 +16,8 @@ import { HealthModule } from './health/health.module';
 import { SocketModule } from './sockets/socket.module';
 import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
 import { SampleQueueModule } from './rabbitmq/sample-queue/sample-queue.module';
+import { BullMQModule } from './bullmq/bullmq.module';
+import { SampleBullModule } from './bullmq/sample-bull/sample-bull.module';
 import { EveryInterceptor } from './interceptors/every.interceptor';
 import { HttpExceptionsFilter } from './common/exceptions/all-exception.filters';
 import { ResponseInterceptor } from './interceptors/transform.response.interceptor';
@@ -42,6 +44,8 @@ import { ResponseInterceptor } from './interceptors/transform.response.intercept
     HealthModule,
     RabbitMQModule,
     SampleQueueModule,
+    BullMQModule,
+    SampleBullModule,
   ],
   controllers: [AppController, MetricsController],
   providers: [

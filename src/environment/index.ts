@@ -34,8 +34,8 @@ const AWS = {
 const REDIS_HOST: string = process.env.REDIS_HOST || 'localhost';
 const REDIS_PORT: string = process.env.REDIS_PORT || '6379';
 const REDIS_DB: string = process.env.REDIS_DB || '0';
-const REDIS_USERNAME: string = process.env.REDIS_USERNAME || 'default';
-const REDIS_PASSWORD: string = process.env.REDIS_PASSWORD || '930621tjr';
+const REDIS_USERNAME: string = process.env.REDIS_USERNAME || '';
+const REDIS_PASSWORD: string = process.env.REDIS_PASSWORD || '';
 
 
 export { NODE_ENV, SERVICE_DOMAIN, PORT, SOCKETPORT, FE_URL, RATE_LIMIT_MAX, SALT, ACCESS_TOKEN_SECRET_KEY, PRISMA_DATABASE_URL, AWS, REDIS_HOST, REDIS_PORT, REDIS_DB, REDIS_USERNAME };
