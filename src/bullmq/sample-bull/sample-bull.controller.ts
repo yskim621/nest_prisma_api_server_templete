@@ -1,55 +1,7 @@
 import { Controller, Post, Get, Delete, Body, Param, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBody, ApiResponse, ApiProperty, ApiQuery } from '@nestjs/swagger';
-import { IsString, IsNumber, IsOptional, IsNotEmpty } from 'class-validator';
+import { ApiTags, ApiOperation, ApiBody, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { SampleBullService } from './sample-bull.service';
-
-class EmailJobDto {
-  @ApiProperty({ description: '수신자 이메일', example: 'test@example.com' })
-  @IsString()
-  @IsNotEmpty()
-  to: string;
-
-  @ApiProperty({ description: '이메일 제목', example: 'Hello' })
-  @IsString()
-  @IsNotEmpty()
-  subject: string;
-
-  @ApiProperty({ description: '이메일 본문', example: 'Test message' })
-  @IsString()
-  @IsNotEmpty()
-  body: string;
-}
-
-class NotificationJobDto {
-  @ApiProperty({ description: '사용자 ID', example: 1 })
-  @IsNumber()
-  userId: number;
-
-  @ApiProperty({ description: '알림 메시지', example: 'New notification' })
-  @IsString()
-  @IsNotEmpty()
-  message: string;
-}
-
-class DataProcessingJobDto {
-  @ApiProperty({ description: '처리할 데이터', example: { items: [1, 2, 3] } })
-  @IsOptional()
-  data: unknown;
-}
-
-class DelayedJobDto {
-  @ApiProperty({ description: '작업 이름', example: 'email' })
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
-  @ApiProperty({ description: '작업 데이터', example: { to: 'test@example.com' } })
-  data: unknown;
-
-  @ApiProperty({ description: '지연 시간 (ms)', example: 5000 })
-  @IsNumber()
-  delayMs: number;
-}
+import { EmailJobDto, NotificationJobDto, DataProcessingJobDto, DelayedJobDto } from './sample-bull.dto';
 
 @ApiTags('BullMQ Sample')
 @Controller('bull')
