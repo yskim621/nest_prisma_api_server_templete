@@ -1,0 +1,8 @@
+# Debug mode override for docker-compose.dev.yml
+# Usage: docker-compose -f docker-compose.dev.yml -f docker-compose.debug.yml up
+
+services:
+  api:
+    command: ["npm", "run", "start:debug"]
+    environment:
+      - NODE_OPTIONS=--inspect=0.0.0.0:9229

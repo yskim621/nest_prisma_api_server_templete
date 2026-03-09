@@ -74,10 +74,7 @@ export class SampleBullProcessor extends WorkerHost {
     return { success: true, userId: data.userId };
   }
 
-  private async handleDataProcessingJob(
-    data: DataProcessingJobData,
-    job: Job,
-  ): Promise<{ success: boolean; processedAt: Date }> {
+  private async handleDataProcessingJob(data: DataProcessingJobData, job: Job): Promise<{ success: boolean; processedAt: Date }> {
     this.logger.log(`[DataProcessing] Processing data`);
 
     // 단계별 진행률 업데이트
