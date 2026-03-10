@@ -1,34 +1,39 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
+import { Injectable } from '@nestjs/common';
+import { CreateUserDto, UpdateUserDto, UserDto } from './dto/user.dto';
 import { UserRepository } from './user.repository';
+import { BaseCrudService } from '../../../common/base';
 
+/**
+ * UserService - BaseCrudService를 확장한 사용자 서비스
+ *
+ * 기본 CRUD 기능은 BaseCrudService에서 상속받으며,
+ * 사용자 도메인에 특화된 비즈니스 로직만 추가로 구현합니다.
+ */
 @Injectable()
-export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
-
-  async create(data: CreateUserDto) {
-    return await this.userRepository.create(data);
+export class UserService extends BaseCrudService<UserDto, CreateUserDto, UpdateUserDto, UserRepository> {
+  constructor(private readonly userRepository: UserRepository) {
+    super(userRepository);
   }
 
-  async getAllUsers() {
-    return await this.userRepository.findAll();
+  /**
+   * 모든 사용자 조회
+   * @deprecated findAll() 사용 권장
+   */
+  async getAllUsers(): Promise<UserDto[]> {
+    return this.findAll();
   }
 
-  async findOne(id: number) {
-    // Pre-process
-
-    // Business Logic
-    const user = await this.userRepository.findOne(id);
-
-    // Post-process
-    return user;
+  /**
+   * 이메일로 사용자 조회
+   */
+  async findByEmail(email: string): Promise<UserDto | null> {
+    return this.userRepository.findByEmail(email);
   }
 
-  async update(id: number, data: UpdateUserDto) {
-    return await this.userRepository.update(id, data);
-  }
-
-  async remove(id: number) {
-    return await this.userRepository.remove(id);
+  /**
+   * 계정 상태로 사용자 목록 조회
+   */
+  async findByAccountStatus(status: string): Promise<UserDto[]> {
+    return this.userRepository.findByAccountStatus(status);
   }
 }

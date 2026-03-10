@@ -1,20 +1,30 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { Board, CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import { BoardRepository } from './board.repository';
-import {
-  CreateQueryException, FindOneQueryException,
-  FindQueryException,
-} from '../../../common/exceptions/common.exception';
+import { CreateQueryException, FindOneQueryException } from '../../../common/exceptions/common.exception';
 import { generateException } from '../../../common/exceptions/common.error-handler';
 import { UserRepository } from '../user/user.repository';
+import { BaseCrudService } from '../../../common/base';
+import { ContentStatus } from './board.enum';
 
+/**
+ * BoardsService - BaseCrudService를 확장한 게시판 서비스
+ *
+ * 기본 CRUD 기능은 BaseCrudService에서 상속받으며,
+ * 게시판 도메인에 특화된 비즈니스 로직만 추가로 구현합니다.
+ */
 @Injectable()
-export class BoardsService {
+export class BoardsService extends BaseCrudService<Board, CreateBoardDto, UpdateBoardDto, BoardRepository> {
   constructor(
     private boardRepository: BoardRepository,
     private userRepository: UserRepository,
-  ) {}
+  ) {
+    super(boardRepository);
+  }
 
+  /**
+   * 게시글 생성 (사용자 검증 포함)
+   */
   async create(createBoardDto: CreateBoardDto): Promise<Board> {
     try {
       const foundUser = await this.userRepository.findOne(createBoardDto.userId);
@@ -34,27 +44,32 @@ export class BoardsService {
     }
   }
 
+  /**
+   * 다중 게시글 생성
+   */
   async createBulkContents(createBoardDto: CreateBoardDto) {
     return this.boardRepository.createMultiData(createBoardDto);
   }
 
+  /**
+   * 모든 게시글 조회
+   * @deprecated findAll() 사용 권장
+   */
   async getAllBoards() {
-    try {
-      return this.boardRepository.findAll();
-    } catch (error) {
-      throw new FindQueryException(error);
-    }
+    return this.findAll();
   }
 
-  async findOne(id: number) {
-    return this.boardRepository.findOne(id);
+  /**
+   * 상태로 게시글 목록 조회
+   */
+  async findByStatus(status: ContentStatus): Promise<Board[]> {
+    return this.boardRepository.findByStatus(status);
   }
 
-  async update(id: number, updateBoardDto: UpdateBoardDto) {
-    return this.boardRepository.update(id, updateBoardDto);
-  }
-
-  async remove(id: number) {
-    return this.boardRepository.remove(id);
+  /**
+   * 사용자 ID로 게시글 목록 조회
+   */
+  async findByUserId(userId: number): Promise<Board[]> {
+    return this.boardRepository.findByUserId(userId);
   }
 }

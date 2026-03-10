@@ -1,32 +1,40 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { MindsaiPrismaService } from 'src/prisma/nest_template.prisma.service';
 import { Board, CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
-import { FindOneQueryException, FindQueryException } from '../../../common/exceptions/common.exception';
+import { FindOneQueryException } from '../../../common/exceptions/common.exception';
 import { generateException } from '../../../common/exceptions/common.error-handler';
 import { ContentStatus } from './board.enum';
 import { AccountStatus } from '../user/user.enum';
+import { BaseRepository } from '../../../common/base';
 
-// 기능과 상관없는 샘플용 코드
+/**
+ * BoardRepository - BaseRepository를 확장한 게시판 레포지토리
+ *
+ * 기본 CRUD 기능은 BaseRepository에서 상속받으며,
+ * 게시판 도메인에 특화된 메서드만 추가로 구현합니다.
+ */
 @Injectable()
-export class BoardRepository {
-  constructor(private prisma: MindsaiPrismaService) {}
+export class BoardRepository extends BaseRepository<Board, CreateBoardDto, UpdateBoardDto> {
+  private readonly logger = new Logger(BoardRepository.name);
 
+  constructor(prisma: MindsaiPrismaService) {
+    super(prisma, 'board');
+  }
+
+  /**
+   * 게시글 생성 (사용자 연결 포함)
+   */
   async create(data: CreateBoardDto): Promise<Board> {
     try {
       const createdBoard = await this.prisma.board.create({
         data: {
           title: data.title,
           description: data.description,
-          status: data.status as string, // 기본값 설정
-          user: {
-            connect: { id: data.userId },
-          },
+          status: data.status as string,
+          user: { connect: { id: data.userId } },
         },
       });
-      return {
-        ...createdBoard,
-        status: createdBoard.status as ContentStatus,
-      };
+      return { ...createdBoard, status: createdBoard.status as ContentStatus };
     } catch (error) {
       if (error instanceof HttpException) {
         generateException(error);
@@ -34,67 +42,62 @@ export class BoardRepository {
     }
   }
 
+  /**
+   * 다중 게시글 생성 (트랜잭션)
+   */
   async createMultiData(data: CreateBoardDto) {
-    // 기본 트렌젝션 => 배열 형태로 열거
     return this.prisma.$transaction([
       this.prisma.board.create({
-        data: {
-          title: data.title,
-          description: data.description,
-          user: {
-            connect: { id: data.userId },
-          },
-        },
+        data: { title: data.title, description: data.description, user: { connect: { id: data.userId } } },
       }),
       this.prisma.board.create({
-        data: {
-          title: data.title,
-          description: data.description,
-          user: {
-            connect: { id: data.userId },
-          },
-        },
+        data: { title: data.title, description: data.description, user: { connect: { id: data.userId } } },
       }),
     ]);
   }
 
-  async findAll() {
+  /**
+   * 게시글 상태 업데이트 (고급 트랜잭션)
+   */
+  async update(id: number, data: UpdateBoardDto): Promise<Board> {
     try {
-      return this.prisma.board.findMany();
-    } catch (error) {
-      throw new FindQueryException(error);
-    }
-  }
-
-  async findOne(id: number) {
-    return this.prisma.board.findUnique({ where: { id } });
-  }
-
-  async update(id: number, data: UpdateBoardDto) {
-    try {
-      // 고급 트렌젝션 => 각 트렌잭션 별로 전/후 처리가 가능
-      await this.prisma.$transaction(async (tx) => {
-        const foundUserData = await tx.user.findUnique({ where: { id: data.userId } }); // Throws if not found
+      return await this.withTransaction(async (tx) => {
+        const foundUserData = await tx.user.findUnique({ where: { id: data.userId } });
         if (!foundUserData) {
           throw new FindOneQueryException();
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
         if (foundUserData.accountStatus === AccountStatus.ACTIVE) {
-          return;
+          const board = await tx.board.findUnique({ where: { id } });
+          return { ...board, status: board.status as ContentStatus };
         }
 
-        await tx.board.update({
+        const updatedBoard = await tx.board.update({
           where: { id },
           data: { status: ContentStatus.HIDDEN },
         });
+        return { ...updatedBoard, status: updatedBoard.status as ContentStatus };
       });
     } catch (error) {
-      console.error('Transaction failed. Rolled back.', error);
+      this.logger.error('Transaction failed. Rolled back.', error);
+      throw error;
     }
   }
 
-  async remove(id: number) {
-    return this.prisma.board.delete({ where: { id } });
+  /**
+   * 상태로 게시글 목록 조회
+   */
+  async findByStatus(status: ContentStatus): Promise<Board[]> {
+    const boards = await this.prisma.board.findMany({ where: { status } });
+    return boards.map((board) => ({ ...board, status: board.status as ContentStatus }));
+  }
+
+  /**
+   * 사용자 ID로 게시글 목록 조회
+   */
+  async findByUserId(userId: number): Promise<Board[]> {
+    const boards = await this.prisma.board.findMany({ where: { userId } });
+    return boards.map((board) => ({ ...board, status: board.status as ContentStatus }));
   }
 }
