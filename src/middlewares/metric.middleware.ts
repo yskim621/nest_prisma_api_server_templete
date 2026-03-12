@@ -22,9 +22,7 @@ export class MetricMiddleware implements NestMiddleware {
       const method = req.method;
       const statusCode = res.statusCode;
 
-      httpRequestDurationMicroseconds
-        .labels(method, route, statusCode.toString())
-        .observe(responseTimeInMs / 1000);
+      httpRequestDurationMicroseconds.labels(method, route, statusCode.toString()).observe(responseTimeInMs / 1000);
     });
     next();
   }
@@ -113,27 +111,20 @@ export class Pm2MetricsService {
             try {
               let value: unknown;
               if (name === 'Loop delay') {
-                const match =
-                  p.pm2_env.axm_monitor[name].value.match(/^[\d.]+/);
+                const match = p.pm2_env.axm_monitor[name].value.match(/^[\d.]+/);
                 value = match ? Number.parseFloat(match[0]) : NaN;
               } else if (/Event Loop Latency|Heap Size/.test(name)) {
-                value = Number.parseFloat(
-                  p.pm2_env.axm_monitor[name].value.toString().split('m')[0],
-                );
+                value = Number.parseFloat(p.pm2_env.axm_monitor[name].value.toString().split('m')[0]);
               } else {
                 value = Number.parseFloat(p.pm2_env.axm_monitor[name].value);
               }
 
               if (Number.isNaN(value)) {
-                this.logger.warn(
-                  `Ignoring metric name "${name}" as value "${value}" is not a number`,
-                );
+                this.logger.warn(`Ignoring metric name "${name}" as value "${value}" is not a number`);
                 continue;
               }
 
-              const metricName = `${this.prefix}_${name
-                .replace(/[^a-z\d]+/gi, '_')
-                .toLowerCase()}`;
+              const metricName = `${this.prefix}_${name.replace(/[^a-z\d]+/gi, '_').toLowerCase()}`;
               if (!pm[metricName]) {
                 pm[metricName] = new Gauge({
                   name: metricName,

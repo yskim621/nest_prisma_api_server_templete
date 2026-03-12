@@ -43,7 +43,6 @@ export class CommonResponseWithPagination extends CommonResponse {
  */
 type ResSystem = 'c' | 'n' | 'e' | 'p' | 'u' | 'a';
 
-
 export type ComSystem =
   | 'central-notification'
   | 'notification-central'
@@ -60,4 +59,3 @@ export type ComSystem =
   | 'central-common'
   | 'common-central'
   | 'aws-central';
-

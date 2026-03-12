@@ -18,12 +18,7 @@ import { BaseRepository } from './base.repository';
  * }
  * ```
  */
-export abstract class BaseCrudService<
-  T,
-  CreateDTO,
-  UpdateDTO,
-  Repository extends BaseRepository<T, CreateDTO, UpdateDTO>,
-> {
+export abstract class BaseCrudService<T, CreateDTO, UpdateDTO, Repository extends BaseRepository<T, CreateDTO, UpdateDTO>> {
   protected constructor(protected readonly repository: Repository) {}
 
   /**
@@ -74,7 +69,7 @@ export abstract class BaseCrudService<
   async findWithPagination(
     skip: number,
     take: number,
-    where?: Record<string, any>,
+    where?: Record<string, unknown>,
     orderBy?: Record<string, 'asc' | 'desc'>,
   ): Promise<{ data: T[]; total: number }> {
     return this.repository.findWithPagination(skip, take, where, orderBy);

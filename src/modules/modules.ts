@@ -5,11 +5,6 @@ import { MindsSignalModule } from 'src/routes/minds-signal.module';
 import { AuthModule } from './msl/auth/auth.module';
 
 @Module({
-  imports: [
-    forwardRef(() => AuthModule),
-    forwardRef(() => UserModule),
-    forwardRef(() => BoardsModule),
-    forwardRef(() => MindsSignalModule),
-  ],
+  imports: [forwardRef(() => AuthModule), forwardRef(() => UserModule), forwardRef(() => BoardsModule), forwardRef(() => MindsSignalModule)],
 })
 export class Modules {}

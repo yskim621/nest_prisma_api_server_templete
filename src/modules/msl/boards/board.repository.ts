@@ -67,7 +67,6 @@ export class BoardRepository extends BaseRepository<Board, CreateBoardDto, Updat
           throw new FindOneQueryException();
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
         if (foundUserData.accountStatus === AccountStatus.ACTIVE) {
           const board = await tx.board.findUnique({ where: { id } });
           return { ...board, status: board.status as ContentStatus };

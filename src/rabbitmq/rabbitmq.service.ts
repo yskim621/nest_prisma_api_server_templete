@@ -107,11 +107,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   /**
    * 메시지 처리 (내부 헬퍼)
    */
-  private async processMessage(
-    msg: ConsumeMessage,
-    queue: string,
-    callback: (message: object) => Promise<void>,
-  ): Promise<void> {
+  private async processMessage(msg: ConsumeMessage, queue: string, callback: (message: object) => Promise<void>): Promise<void> {
     try {
       const content = JSON.parse(msg.content.toString()) as object;
       this.logger.debug(`Message received from queue "${queue}": ${JSON.stringify(content)}`);
