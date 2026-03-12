@@ -56,7 +56,7 @@ const consoleLogFormat = winston.format.combine(
     const args = info[Symbol.for('splat')] as any;
     if (args) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-      args.forEach(arg => {
+      args.forEach((arg) => {
         if (typeof arg === 'object') {
           // eslint-disable-next-line @typescript-eslint/no-base-to-string,@typescript-eslint/restrict-plus-operands
           info.message += ' ' + stringify(arg);

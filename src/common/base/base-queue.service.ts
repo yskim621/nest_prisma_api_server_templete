@@ -67,11 +67,7 @@ export abstract class BaseQueueService {
   /**
    * 작업을 큐에 추가
    */
-  async addJob<T>(
-    name: string,
-    data: T,
-    options?: JobsOptions,
-  ): Promise<JobResult> {
+  async addJob<T>(name: string, data: T, options?: JobsOptions): Promise<JobResult> {
     const job = await this.queue.add(name, data, options);
     this.logger.log(`Job ${name} added: ${job.id}`);
     return this.formatJobResult(job);
@@ -80,12 +76,7 @@ export abstract class BaseQueueService {
   /**
    * 지연 작업 추가
    */
-  async addDelayedJob<T>(
-    name: string,
-    data: T,
-    delayMs: number,
-    options?: Omit<JobsOptions, 'delay'>,
-  ): Promise<JobResult> {
+  async addDelayedJob<T>(name: string, data: T, delayMs: number, options?: Omit<JobsOptions, 'delay'>): Promise<JobResult> {
     const job = await this.queue.add(name, data, { ...options, delay: delayMs });
     this.logger.log(`Delayed job ${name} added: ${job.id} (delay: ${delayMs}ms)`);
     return this.formatJobResult(job);
@@ -94,12 +85,7 @@ export abstract class BaseQueueService {
   /**
    * 반복 작업 추가 (Cron)
    */
-  async addRepeatableJob<T>(
-    name: string,
-    data: T,
-    pattern: string,
-    options?: Omit<JobsOptions, 'repeat'>,
-  ): Promise<{ jobKey: string; pattern: string }> {
+  async addRepeatableJob<T>(name: string, data: T, pattern: string, options?: Omit<JobsOptions, 'repeat'>): Promise<{ jobKey: string; pattern: string }> {
     const job = await this.queue.add(name, data, {
       ...options,
       repeat: { pattern },
@@ -179,10 +165,7 @@ export abstract class BaseQueueService {
    * 완료/실패 작업 정리
    */
   async cleanQueue(grace: number = 0, limit: number = 100): Promise<{ cleaned: string[] }> {
-    const [completed, failed] = await Promise.all([
-      this.queue.clean(grace, limit, 'completed'),
-      this.queue.clean(grace, limit, 'failed'),
-    ]);
+    const [completed, failed] = await Promise.all([this.queue.clean(grace, limit, 'completed'), this.queue.clean(grace, limit, 'failed')]);
 
     this.logger.log(`Cleaned ${completed.length + failed.length} jobs`);
     return { cleaned: [...completed, ...failed] };

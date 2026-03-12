@@ -1,12 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue, Job } from 'bullmq';
-import {
-  SAMPLE_BULL_QUEUE,
-  EmailJobData,
-  NotificationJobData,
-  DataProcessingJobData,
-} from './sample-bull.processor';
+import { SAMPLE_BULL_QUEUE, EmailJobData, NotificationJobData, DataProcessingJobData } from './sample-bull.processor';
 
 export interface JobResult {
   jobId: string | undefined;
@@ -75,11 +70,7 @@ export class SampleBullService {
   /**
    * 반복 작업 추가 (Cron)
    */
-  async addRepeatableJob(
-    name: string,
-    data: unknown,
-    pattern: string,
-  ): Promise<{ jobKey: string; pattern: string }> {
+  async addRepeatableJob(name: string, data: unknown, pattern: string): Promise<{ jobKey: string; pattern: string }> {
     const job = await this.sampleQueue.add(name, data, {
       repeat: {
         pattern,
