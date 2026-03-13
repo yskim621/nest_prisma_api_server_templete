@@ -1,18 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Pagination } from '../utils/pagination';
+import { HttpStatus } from '@nestjs/common';
 
-export class CommonResponse<T = any> {
+export class CommonResponse<T = unknown> {
   /**
    * 2000(성공), 4xxx(클라이언트 에러), 5xxx(서버 에러), 9999(unknown)
-   * default: 5000
-   * central: 5100
-   * notification: 5200
-   * external: 5300
-   * payment: 5400
-   * user: 4500
-   * admin: 4600
    */
   code: string;
+  httpStatus?: HttpStatus;
   isSuccess: boolean;
   message: string;
   resSystem: ResSystem;

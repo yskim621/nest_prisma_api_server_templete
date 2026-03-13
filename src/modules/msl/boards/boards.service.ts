@@ -1,8 +1,6 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Board, CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import { BoardRepository } from './board.repository';
-import { CreateQueryException, FindOneQueryException } from '../../../common/exceptions/common.exception';
-import { generateException } from '../../../common/exceptions/common.error-handler';
 import { UserRepository } from '../user/user.repository';
 import { BaseCrudService } from '../../../common/base';
 import { ContentStatus } from './board.enum';
@@ -26,22 +24,12 @@ export class BoardsService extends BaseCrudService<Board, CreateBoardDto, Update
    * 게시글 생성 (사용자 검증 포함)
    */
   async create(createBoardDto: CreateBoardDto): Promise<Board> {
-    try {
-      const foundUser = await this.userRepository.findOne(createBoardDto.userId);
-      if (!foundUser) {
-        throw new FindOneQueryException();
-      }
-
-      const createdBoard = await this.boardRepository.create(createBoardDto);
-      if (!createdBoard) {
-        throw new CreateQueryException();
-      }
-      return createdBoard;
-    } catch (error) {
-      if (error instanceof HttpException) {
-        generateException(error);
-      }
+    const foundUser = await this.userRepository.findOne(createBoardDto.userId);
+    if (!foundUser) {
+      throw new NotFoundException(`User with id ${createBoardDto.userId} not found`);
     }
+
+    return this.boardRepository.create(createBoardDto);
   }
 
   /**
@@ -49,14 +37,6 @@ export class BoardsService extends BaseCrudService<Board, CreateBoardDto, Update
    */
   async createBulkContents(createBoardDto: CreateBoardDto) {
     return this.boardRepository.createMultiData(createBoardDto);
-  }
-
-  /**
-   * 모든 게시글 조회
-   * @deprecated findAll() 사용 권장
-   */
-  async getAllBoards() {
-    return this.findAll();
   }
 
   /**

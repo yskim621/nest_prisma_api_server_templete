@@ -1,10 +1,19 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { UserModule } from './msl/user/user.module';
 import { BoardsModule } from './msl/boards/boards.module';
 import { MindsSignalModule } from 'src/routes/minds-signal.module';
 import { AuthModule } from './msl/auth/auth.module';
 
+/**
+ * Modules - 비즈니스 모듈을 통합 관리하는 루트 모듈
+ *
+ * 의존성 계층:
+ * - AuthModule: 인증/인가 (UserModule 의존)
+ * - UserModule: 사용자 관리 (독립)
+ * - BoardsModule: 게시판 (UserModule 의존)
+ * - MindsSignalModule: 라우팅 모듈
+ */
 @Module({
-  imports: [forwardRef(() => AuthModule), forwardRef(() => UserModule), forwardRef(() => BoardsModule), forwardRef(() => MindsSignalModule)],
+  imports: [AuthModule, UserModule, BoardsModule, MindsSignalModule],
 })
 export class Modules {}

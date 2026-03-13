@@ -1,35 +1,58 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, ParseIntPipe, UseGuards, HttpStatus, HttpCode } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto, UserDto } from './dto/user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { BaseCrudController } from '../../../common/base';
 
-@Controller('user')
-export class UserController {
-  constructor(private readonly userService: UserService) {}
+@Controller('users')
+@ApiTags('Users')
+export class UserController extends BaseCrudController<UserDto, CreateUserDto, UpdateUserDto, UserService> {
+  constructor(private readonly userService: UserService) {
+    super(userService);
+  }
 
-  @Post('create')
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: '사용자 생성' })
+  @ApiResponse({ status: HttpStatus.CREATED, description: '사용자 생성 성공', type: UserDto })
   async create(@Body() createUserDto: CreateUserDto): Promise<UserDto> {
-    return await this.userService.create(createUserDto);
+    return this.userService.create(createUserDto);
   }
 
+  @Get()
   @UseGuards(JwtAuthGuard)
-  @Get('list')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '모든 사용자 조회' })
+  @ApiResponse({ status: HttpStatus.OK, description: '조회 성공', type: [UserDto] })
   async findAll(): Promise<UserDto[]> {
-    return await this.userService.getAllUsers();
+    return this.userService.findAll();
   }
 
-  @Get('get/:id')
-  findOne(@Param('id') id: number): Promise<UserDto> {
-    return this.userService.findOne(+id);
+  @Get(':id')
+  @ApiOperation({ summary: 'ID로 사용자 조회' })
+  @ApiResponse({ status: HttpStatus.OK, description: '조회 성공', type: UserDto })
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<UserDto> {
+    return this.userService.findOne(id);
   }
 
-  @Patch('update/:id')
-  update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto): Promise<UserDto> {
-    return this.userService.update(+id, updateUserDto);
+  @Patch(':id')
+  @ApiOperation({ summary: '사용자 정보 수정' })
+  @ApiResponse({ status: HttpStatus.OK, description: '수정 성공', type: UserDto })
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto): Promise<UserDto> {
+    return this.userService.update(id, updateUserDto);
   }
 
-  @Delete('delete/:id')
-  remove(@Param('id') id: number): Promise<UserDto> {
-    return this.userService.remove(+id);
+  @Delete(':id')
+  @ApiOperation({ summary: '사용자 삭제' })
+  @ApiResponse({ status: HttpStatus.OK, description: '삭제 성공', type: UserDto })
+  remove(@Param('id', ParseIntPipe) id: number): Promise<UserDto> {
+    return this.userService.remove(id);
+  }
+
+  @Get('email/:email')
+  @ApiOperation({ summary: '이메일로 사용자 조회' })
+  findByEmail(@Param('email') email: string): Promise<UserDto | null> {
+    return this.userService.findByEmail(email);
   }
 }
