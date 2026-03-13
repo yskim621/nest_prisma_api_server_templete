@@ -16,14 +16,6 @@ export class UserService extends BaseCrudService<UserDto, CreateUserDto, UpdateU
   }
 
   /**
-   * 모든 사용자 조회
-   * @deprecated findAll() 사용 권장
-   */
-  async getAllUsers(): Promise<UserDto[]> {
-    return this.findAll();
-  }
-
-  /**
    * 이메일로 사용자 조회
    */
   async findByEmail(email: string): Promise<UserDto | null> {
