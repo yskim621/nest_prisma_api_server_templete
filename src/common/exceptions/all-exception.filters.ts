@@ -81,12 +81,18 @@ export class NotFoundFilter implements ExceptionFilter {
 
 @Catch(UnauthorizedClientException, ForbiddenException)
 export class ForbiddenFilter implements ExceptionFilter {
-  async catch(exception: UnauthorizedClientException, host: ArgumentsHost) {
+  async catch(exception: UnauthorizedClientException | ForbiddenException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
 
-    return await errorHandle(exception, request.url, 'central-common');
+    const result = await errorHandle(exception, request.url, 'central-common');
+
+    response.status(HttpStatus.FORBIDDEN).json({
+      ...result,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+    });
   }
 }
 
@@ -200,10 +206,10 @@ export class PrismaExceptionFilter implements ExceptionFilter {
 
     this.logger.error('exception', exception);
 
-    const errorMessage = `서버 에러가 발생했습니다. 
-      \r\n Http Error Code: ${status} 
-      \r\n Error Path: ${request.url} 
-      \r\n ${packageName} 프로젝트 ${process.env.NODE_ENV}환경 
+    const errorMessage = `서버 에러가 발생했습니다.
+      \r\n Http Error Code: ${status}
+      \r\n Error Path: ${request.url}
+      \r\n ${packageName} 프로젝트 ${process.env.NODE_ENV}환경
       \r\n 해당 프로젝트 담당자는 확인바랍니다. `;
     await sendNotification('error', 'Internal Server Error', errorMessage, exception);
 

@@ -83,7 +83,7 @@ src/
 ├── utils/                      # 유틸리티
 │   ├── firebase.service.ts     # Firebase 푸시 알림
 │   ├── mailer.service.ts       # 이메일 발송
-│   └── cryto.util.ts           # 암호화
+│   └── crypto.util.ts           # 암호화
 │
 ├── app.module.ts               # 루트 모듈
 ├── main.ts                     # 부트스트랩
