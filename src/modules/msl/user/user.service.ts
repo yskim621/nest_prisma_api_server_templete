@@ -1,31 +1,45 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto, UpdateUserDto, UserDto } from './dto/user.dto';
+import { User } from '../../../../prisma/generated/nest_prisma_template';
+import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 import { UserRepository } from './user.repository';
-import { BaseCrudService } from '../../../common/base';
 
 /**
- * UserService - BaseCrudService를 확장한 사용자 서비스
+ * UserService - 사용자 비즈니스 로직 계층
  *
- * 기본 CRUD 기능은 BaseCrudService에서 상속받으며,
- * 사용자 도메인에 특화된 비즈니스 로직만 추가로 구현합니다.
+ * Repository를 통해 데이터 접근을 분리하고,
+ * 비즈니스 로직이 필요한 곳에 직접 구현합니다.
  */
 @Injectable()
-export class UserService extends BaseCrudService<UserDto, CreateUserDto, UpdateUserDto, UserRepository> {
-  constructor(private readonly userRepository: UserRepository) {
-    super(userRepository);
+export class UserService {
+  constructor(private readonly userRepository: UserRepository) {}
+
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    return this.userRepository.create(createUserDto);
   }
 
-  /**
-   * 이메일로 사용자 조회
-   */
-  async findByEmail(email: string): Promise<UserDto | null> {
+  async findAll() {
+    return this.userRepository.findAll();
+  }
+
+  async findOne(id: number) {
+    return this.userRepository.findOneOrFail<User>(id);
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    await this.userRepository.findOneOrFail(id);
+    return this.userRepository.update(id, updateUserDto);
+  }
+
+  async remove(id: number): Promise<User> {
+    await this.userRepository.findOneOrFail(id);
+    return this.userRepository.remove(id);
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findByEmail(email);
   }
 
-  /**
-   * 계정 상태로 사용자 목록 조회
-   */
-  async findByAccountStatus(status: string): Promise<UserDto[]> {
+  async findByAccountStatus(status: string): Promise<User[]> {
     return this.userRepository.findByAccountStatus(status);
   }
 }

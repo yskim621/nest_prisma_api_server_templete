@@ -1,34 +1,31 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Board, CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
+import { Board as PrismaBoard } from '../../../../prisma/generated/nest_prisma_template';
+import { CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import { BoardRepository } from './board.repository';
 import { UserRepository } from '../user/user.repository';
-import { BaseCrudService } from '../../../common/base';
 import { ContentStatus } from './board.enum';
 
 /**
- * BoardsService - BaseCrudService를 확장한 게시판 서비스
+ * BoardsService - 게시판 비즈니스 로직 계층
  *
- * 기본 CRUD 기능은 BaseCrudService에서 상속받으며,
- * 게시판 도메인에 특화된 비즈니스 로직만 추가로 구현합니다.
+ * Repository를 통해 데이터 접근을 분리하고,
+ * 사용자 검증 등 비즈니스 규칙을 이 계층에서 처리합니다.
  */
 @Injectable()
-export class BoardsService extends BaseCrudService<Board, CreateBoardDto, UpdateBoardDto, BoardRepository> {
+export class BoardsService {
   constructor(
-    private boardRepository: BoardRepository,
-    private userRepository: UserRepository,
-  ) {
-    super(boardRepository);
-  }
+    private readonly boardRepository: BoardRepository,
+    private readonly userRepository: UserRepository,
+  ) {}
 
   /**
    * 게시글 생성 (사용자 검증 포함)
    */
-  async create(createBoardDto: CreateBoardDto): Promise<Board> {
-    const foundUser = await this.userRepository.findOne(createBoardDto.userId);
+  async create(createBoardDto: CreateBoardDto): Promise<PrismaBoard> {
+    const foundUser = await this.userRepository.findById(createBoardDto.userId);
     if (!foundUser) {
       throw new NotFoundException(`User with id ${createBoardDto.userId} not found`);
     }
-
     return this.boardRepository.create(createBoardDto);
   }
 
@@ -39,17 +36,35 @@ export class BoardsService extends BaseCrudService<Board, CreateBoardDto, Update
     return this.boardRepository.createMultiData(createBoardDto);
   }
 
+  async findAll(): Promise<PrismaBoard[]> {
+    return this.boardRepository.findAll();
+  }
+
+  async findOne(id: number) {
+    return this.boardRepository.findOneOrFail<PrismaBoard>(id);
+  }
+
+  async update(id: number, updateBoardDto: UpdateBoardDto): Promise<PrismaBoard> {
+    await this.boardRepository.findOneOrFail(id);
+    return this.boardRepository.update(id, updateBoardDto);
+  }
+
+  async remove(id: number): Promise<PrismaBoard> {
+    await this.boardRepository.findOneOrFail(id);
+    return this.boardRepository.remove(id);
+  }
+
   /**
    * 상태로 게시글 목록 조회
    */
-  async findByStatus(status: ContentStatus): Promise<Board[]> {
+  async findByStatus(status: ContentStatus): Promise<PrismaBoard[]> {
     return this.boardRepository.findByStatus(status);
   }
 
   /**
    * 사용자 ID로 게시글 목록 조회
    */
-  async findByUserId(userId: number): Promise<Board[]> {
+  async findByUserId(userId: number): Promise<PrismaBoard[]> {
     return this.boardRepository.findByUserId(userId);
   }
 }
