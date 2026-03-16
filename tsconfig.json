@@ -14,7 +14,7 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "typeRoots": ["./node_modules/@types"],
     "paths": {
       "@app/common": ["libs/common/src"],
       "@app/common/*": ["libs/common/src/*"],
@@ -32,10 +32,7 @@
   },
   "include": [
     "apps/**/*",
-    "libs/**/*",
-    "src/**/*",
-    "test/**/*",
-    "src/**/*.d.ts"
+    "libs/**/*"
   ],
   "exclude": ["node_modules", "dist", "test/**/*.js", "prisma/generated"]
 }
