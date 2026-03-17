@@ -9,15 +9,26 @@ datasource db {
   url      = env("PRISMA_DATABASE_URL")
 }
 
+// ──────────────────────────────────────────────
+// 사용자 관리
+// ──────────────────────────────────────────────
+
 model User {
   id            Int       @id @default(autoincrement())
   email         String?   @unique(map: "user_pk") @db.VarChar(255)
   password      String?   @db.VarChar(255)
   name          String?   @db.VarChar(30)
+  role          String    @default("ROLE_USER") @db.VarChar(20)
+  userGroupId   Int?      @map("user_group_id")
   createdAt     DateTime? @default(dbgenerated("(now())")) @map("created_at") @db.Timestamp(0)
   accountStatus String?   @default("ACTIVE") @map("account_status") @db.VarChar(20)
-  board         Board[]
 
+  board           Board[]
+  userGroup       UserGroup?          @relation(fields: [userGroupId], references: [id], onDelete: SetNull)
+  userPermissions UserPermissionMap[]
+  favoriteMenus   UserFavoriteMenu[]
+
+  @@index([userGroupId], map: "user_group_id_fk")
   @@map("user")
 }
 
@@ -35,8 +46,143 @@ model Board {
 
 model Message {
   id        Int      @id @default(autoincrement())
-  room      String // 채팅방 이름
+  room      String
   author    String
   content   String
   createdAt DateTime @default(now())
+}
+
+// ──────────────────────────────────────────────
+// 사용자 그룹 관리
+// ──────────────────────────────────────────────
+
+model UserGroup {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(50)
+  description String?   @db.VarChar(255)
+  delYn       String    @default("N") @map("del_yn") @db.Char(1)
+  createdBy   String?   @map("created_by") @db.VarChar(255)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+  modifiedBy  String?   @map("modified_by") @db.VarChar(255)
+  modifiedAt  DateTime? @updatedAt @map("modified_at") @db.Timestamp(0)
+
+  users            User[]
+  groupPermissions GroupPermissionMap[]
+
+  @@map("user_group")
+}
+
+// ──────────────────────────────────────────────
+// 권한 관리
+// ──────────────────────────────────────────────
+
+model Permission {
+  id          Int       @id @default(autoincrement())
+  resource    String    @unique @db.VarChar(50)
+  description String?   @db.VarChar(255)
+  type        String    @db.VarChar(20) // MASTER, MANAGER, MENU, ACTION
+  menuId      Int?      @map("menu_id")
+  pageId      String?   @map("page_id") @db.VarChar(100)
+  delYn       String    @default("N") @map("del_yn") @db.Char(1)
+  createdBy   String?   @map("created_by") @db.VarChar(255)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+  modifiedBy  String?   @map("modified_by") @db.VarChar(255)
+  modifiedAt  DateTime? @updatedAt @map("modified_at") @db.Timestamp(0)
+
+  menu             Menu?               @relation(fields: [menuId], references: [id], onDelete: SetNull)
+  userPermissions  UserPermissionMap[]
+  groupPermissions GroupPermissionMap[]
+
+  @@index([type], map: "permission_type_idx")
+  @@index([menuId], map: "permission_menu_id_idx")
+  @@map("permission")
+}
+
+// ──────────────────────────────────────────────
+// 메뉴 관리
+// ──────────────────────────────────────────────
+
+model Menu {
+  id           Int       @id @default(autoincrement())
+  pageId       String?   @map("page_id") @db.VarChar(100)
+  type         String    @db.VarChar(20) // FOLDER, PAGE
+  depth        Int       @default(0)
+  parentMenuId Int?      @map("parent_menu_id")
+  name         String    @db.VarChar(100)
+  description  String?   @db.VarChar(255)
+  menuOrder    Int       @default(0) @map("menu_order")
+  delYn        String    @default("N") @map("del_yn") @db.Char(1)
+  createdBy    String?   @map("created_by") @db.VarChar(255)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+  modifiedBy   String?   @map("modified_by") @db.VarChar(255)
+  modifiedAt   DateTime? @updatedAt @map("modified_at") @db.Timestamp(0)
+
+  parentMenu    Menu?              @relation("MenuHierarchy", fields: [parentMenuId], references: [id], onDelete: SetNull)
+  childMenus    Menu[]             @relation("MenuHierarchy")
+  permissions   Permission[]
+  translations  MenuTranslation[]
+  favoriteMenus UserFavoriteMenu[]
+
+  @@index([parentMenuId], map: "menu_parent_id_idx")
+  @@index([type], map: "menu_type_idx")
+  @@map("menu")
+}
+
+model MenuTranslation {
+  id          Int     @id @default(autoincrement())
+  menuId      Int     @map("menu_id")
+  locale      String  @db.VarChar(10) // ko, en, ja, zh-CN
+  name        String  @db.VarChar(100)
+  description String? @db.VarChar(255)
+
+  menu Menu @relation(fields: [menuId], references: [id], onDelete: Cascade)
+
+  @@unique([menuId, locale])
+  @@index([locale], map: "menu_translation_locale_idx")
+  @@map("menu_translation")
+}
+
+// ──────────────────────────────────────────────
+// 권한 매핑
+// ──────────────────────────────────────────────
+
+model UserPermissionMap {
+  id           Int @id @default(autoincrement())
+  userId       Int @map("user_id")
+  permissionId Int @map("permission_id")
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, permissionId])
+  @@map("user_permission_map")
+}
+
+model GroupPermissionMap {
+  id           Int @id @default(autoincrement())
+  groupId      Int @map("group_id")
+  permissionId Int @map("permission_id")
+
+  group      UserGroup  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, permissionId])
+  @@map("group_permission_map")
+}
+
+// ──────────────────────────────────────────────
+// 즐겨찾기 메뉴
+// ──────────────────────────────────────────────
+
+model UserFavoriteMenu {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  menuId    Int      @map("menu_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  menu Menu @relation(fields: [menuId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, menuId])
+  @@map("user_favorite_menu")
 }

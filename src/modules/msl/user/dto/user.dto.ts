@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsInt, IsOptional, IsString, MinLength } from 'class-validator';
 import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
 import { AccountStatus } from '../user.enum';
 
@@ -19,6 +19,16 @@ export class UserDto {
   @IsOptional()
   @IsString()
   name?: string;
+
+  @ApiProperty({ required: false, description: '사용자 역할 (ROLE_USER, ROLE_ADMIN)' })
+  @IsOptional()
+  @IsString()
+  role?: string;
+
+  @ApiProperty({ required: false, description: '사용자 그룹 ID' })
+  @IsOptional()
+  @IsInt()
+  userGroupId?: number;
 
   @ApiProperty()
   @IsEnum(AccountStatus, { message: 'Invalid account status' })

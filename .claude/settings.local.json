@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/Thinkpad/WebstormProjects/nemo/backend/src/domain/user/orm -name \"*.ts\" -type f 2>/dev/null | head -10)",
+      "Bash(cd \"C:/Users/Thinkpad/WebstormProjects/nest_prisma_api_server_templete\" && npx prisma generate 2>&1)",
+      "Bash(cd \"C:/Users/Thinkpad/WebstormProjects/nest_prisma_api_server_templete\" && npx nest build 2>&1)",
+      "Bash(cd \"C:/Users/Thinkpad/WebstormProjects/nest_prisma_api_server_templete\" && npx tsc --noEmit 2>&1)"
+    ],
+    "deny": [
+      "Edit(**/nemo/**)",
+      "Write(**/nemo/**)",
+      "Bash(echo *nemo*)",
+      "Bash(printf *nemo*)",
+      "Bash(sed -i *nemo*)",
+      "Bash(rm *nemo*)",
+      "Bash(mv *nemo*)",
+      "Bash(cp *nemo*)",
+      "Bash(tee *nemo*)",
+      "Bash(mkdir *nemo*)",
+      "Bash(touch *nemo*)",
+      "Bash(chmod *nemo*)",
+      "Bash(> *nemo*)"
+    ]
+  }
+}

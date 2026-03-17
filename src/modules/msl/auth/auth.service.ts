@@ -8,6 +8,7 @@ import { SALT_ROUNDS, ACCESS_TOKEN_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN } from '
 export interface TokenPayload {
   sub: number;
   email: string;
+  role: string;
   type: 'access' | 'refresh';
 }
 
@@ -18,6 +19,7 @@ export interface AuthResponse {
   user: {
     id: number;
     email: string;
+    role: string;
   };
 }
 
@@ -28,9 +30,6 @@ export class AuthService {
     private readonly prisma: MindsaiPrismaService,
   ) {}
 
-  /**
-   * 사용자 로그인
-   */
   async login(dto: LoginDto): Promise<AuthResponse> {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -46,37 +45,33 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const tokens = this.generateTokens(user.id, user.email);
+    const tokens = this.generateTokens(user.id, user.email, user.role);
 
     return {
       ...tokens,
       user: {
         id: user.id,
         email: user.email,
+        role: user.role,
       },
     };
   }
 
-  /**
-   * 비밀번호 해싱
-   */
   async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, SALT_ROUNDS);
   }
 
-  /**
-   * 비밀번호 검증
-   */
   async validatePassword(password: string, hashedPassword: string): Promise<boolean> {
     return bcrypt.compare(password, hashedPassword);
   }
 
-  /**
-   * Access/Refresh 토큰 생성
-   */
-  private generateTokens(userId: number, email: string): { accessToken: string; refreshToken: string; expiresIn: string } {
-    const accessPayload: TokenPayload = { sub: userId, email, type: 'access' };
-    const refreshPayload: TokenPayload = { sub: userId, email, type: 'refresh' };
+  private generateTokens(
+    userId: number,
+    email: string,
+    role: string,
+  ): { accessToken: string; refreshToken: string; expiresIn: string } {
+    const accessPayload: TokenPayload = { sub: userId, email, role, type: 'access' };
+    const refreshPayload: TokenPayload = { sub: userId, email, role, type: 'refresh' };
 
     return {
       accessToken: this.jwtService.sign(accessPayload, { expiresIn: ACCESS_TOKEN_EXPIRES_IN }),
@@ -85,9 +80,6 @@ export class AuthService {
     };
   }
 
-  /**
-   * 토큰 검증
-   */
   async validateToken(token: string): Promise<TokenPayload | null> {
     try {
       return this.jwtService.verify<TokenPayload>(token);
@@ -96,9 +88,6 @@ export class AuthService {
     }
   }
 
-  /**
-   * Refresh 토큰으로 새 Access 토큰 발급
-   */
   async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; expiresIn: string }> {
     const payload = await this.validateToken(refreshToken);
 
@@ -106,7 +95,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const accessPayload: TokenPayload = { sub: payload.sub, email: payload.email, type: 'access' };
+    const accessPayload: TokenPayload = { sub: payload.sub, email: payload.email, role: payload.role, type: 'access' };
 
     return {
       accessToken: this.jwtService.sign(accessPayload, { expiresIn: ACCESS_TOKEN_EXPIRES_IN }),
