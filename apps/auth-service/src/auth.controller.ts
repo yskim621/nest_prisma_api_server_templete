@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
-import { AUTH_PATTERNS } from '@app/common';
+import { AUTH_PATTERNS, HEALTH_PATTERNS } from '@app/common';
 
 @Controller()
 export class AuthController {
@@ -26,5 +26,15 @@ export class AuthController {
   async hashPassword(@Payload() data: { password: string }) {
     const hashed = await this.authService.hashPassword(data.password);
     return { hashedPassword: hashed };
+  }
+
+  @MessagePattern(HEALTH_PATTERNS.AUTH_PING)
+  async healthPing() {
+    return {
+      status: 'ok',
+      service: 'auth-service',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+    };
   }
 }

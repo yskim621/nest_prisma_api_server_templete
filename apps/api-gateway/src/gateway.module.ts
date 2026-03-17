@@ -1,6 +1,6 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD, APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
+import { APP_GUARD } from '@nestjs/core';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AUTH_SERVICE, CORE_SERVICE } from '@app/common';
 import { AuthLibModule, JwtAuthGuard } from '@app/auth';
@@ -11,6 +11,12 @@ import {
   PermissionsProxyController,
   MenusProxyController,
 } from './proxy/core-proxy.controller';
+import { BoardsProxyController } from './proxy/board-proxy.controller';
+import { SampleTransactionProxyController } from './proxy/sample-transaction-proxy.controller';
+import { SampleBullProxyController } from './proxy/sample-bull-proxy.controller';
+import { SampleRabbitProxyController } from './proxy/sample-rabbit-proxy.controller';
+import { SocketModule } from './socket/socket.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -34,6 +40,8 @@ import {
       },
     ]),
     AuthLibModule,
+    SocketModule,
+    HealthModule,
   ],
   controllers: [
     AuthProxyController,
@@ -41,6 +49,10 @@ import {
     UserGroupsProxyController,
     PermissionsProxyController,
     MenusProxyController,
+    BoardsProxyController,
+    SampleTransactionProxyController,
+    SampleBullProxyController,
+    SampleRabbitProxyController,
   ],
   providers: [
     {

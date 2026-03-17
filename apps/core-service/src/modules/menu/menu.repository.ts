@@ -1,7 +1,23 @@
 import { Injectable } from '@nestjs/common';
+import { Menu, MenuTranslation } from 'prisma/generated/nest_prisma_template';
 import { MindsaiPrismaService } from '@app/database';
 import { BaseRepository, PrismaDelegate } from '@app/common';
 import { CreateMenuDto, CreateMenuTranslationDto, UpdateMenuDto } from './dto/menu.dto';
+
+type MenuWithTranslations = Menu & { translations: MenuTranslation[] };
+
+export interface MenuTreeNode {
+  id: number;
+  pageId: string | null;
+  type: string;
+  depth: number;
+  parentMenuId: number | null;
+  name: string;
+  description: string | null;
+  menuOrder: number;
+  isFavorite?: boolean;
+  children: MenuTreeNode[];
+}
 
 @Injectable()
 export class MenuRepository extends BaseRepository {
@@ -131,8 +147,10 @@ export class MenuRepository extends BaseRepository {
 
     const hasAllPermission = !!hasMasterPerm || !!hasGroupMasterPerm;
 
+    type PermEntry = { permission: { menuId: number | null; resource: string } };
     const allowedMenuIds = new Set<number>();
-    for (const p of [...userPerms, ...groupPerms]) {
+    const allPerms: PermEntry[] = [...(userPerms as PermEntry[]), ...(groupPerms as PermEntry[])];
+    for (const p of allPerms) {
       if (p.permission.menuId) {
         allowedMenuIds.add(p.permission.menuId);
       }
@@ -173,14 +191,14 @@ export class MenuRepository extends BaseRepository {
     return { isFavorite: true };
   }
 
-  private buildTree(menus: any[], locale?: string, favoriteSet?: Set<number>) {
-    const menuMap = new Map<number, any>();
-    const roots: any[] = [];
+  private buildTree(menus: MenuWithTranslations[], locale?: string, favoriteSet?: Set<number>): MenuTreeNode[] {
+    const menuMap = new Map<number, MenuTreeNode>();
+    const roots: MenuTreeNode[] = [];
 
     for (const menu of menus) {
       const translation = locale && menu.translations?.length > 0 ? menu.translations[0] : null;
 
-      const node = {
+      const node: MenuTreeNode = {
         id: menu.id,
         pageId: menu.pageId,
         type: menu.type,
@@ -207,7 +225,7 @@ export class MenuRepository extends BaseRepository {
     return this.pruneEmptyFolders(roots);
   }
 
-  private pruneEmptyFolders(nodes: any[]): any[] {
+  private pruneEmptyFolders(nodes: MenuTreeNode[]): MenuTreeNode[] {
     return nodes.filter((node) => {
       if (node.type === 'FOLDER') {
         node.children = this.pruneEmptyFolders(node.children);
