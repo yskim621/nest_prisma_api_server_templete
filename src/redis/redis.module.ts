@@ -1,4 +1,4 @@
-import { Module, Global } from '@nestjs/common';
+import { Module, Global, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import { RedisService } from './redis.service';
 
@@ -8,6 +8,7 @@ import { RedisService } from './redis.service';
     {
       provide: 'REDIS_CLIENT',
       useFactory: () => {
+        const logger = new Logger('RedisModule');
         const redisUsername = process.env.REDIS_USERNAME;
         const redisPassword = process.env.REDIS_PASSWORD;
 
@@ -19,8 +20,8 @@ import { RedisService } from './redis.service';
           ...(redisPassword && redisPassword.length > 0 ? { password: redisPassword } : {}),
         });
 
-        client.on('connect', () => console.log('[' + new Date().toISOString() + '] ✅ Redis connected'));
-        client.on('error', (err) => console.error('[' + new Date().toISOString() + '] ❌ Redis error:', err.message));
+        client.on('connect', () => logger.log('[' + new Date().toISOString() + '] Redis connected'));
+        client.on('error', (err) => logger.error('[' + new Date().toISOString() + '] Redis error: ' + err.message));
 
         return client;
       },

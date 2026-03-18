@@ -1,6 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import { SALT_ROUNDS } from 'src/environment';
+import { SALT_ROUNDS } from '../../environment';
 
 /**
  * 비밀번호 해싱 (bcrypt 사용)

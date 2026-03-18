@@ -1,5 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
-import { MindsaiPrismaService } from '../../prisma/nest_template.prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { TransactionClient } from './transaction.types';
 
 /**
@@ -10,12 +10,7 @@ import { TransactionClient } from './transaction.types';
  */
 export interface PrismaDelegate {
   findUnique(args: { where: { id: number } }): Promise<unknown>;
-  findMany(args?: {
-    skip?: number;
-    take?: number;
-    where?: Record<string, unknown>;
-    orderBy?: Record<string, 'asc' | 'desc'>;
-  }): Promise<unknown[]>;
+  findMany(args?: { skip?: number; take?: number; where?: Record<string, unknown>; orderBy?: Record<string, 'asc' | 'desc'> }): Promise<unknown[]>;
   count(args?: { where?: Record<string, unknown> }): Promise<number>;
 }
 
@@ -36,7 +31,7 @@ export interface PrismaDelegate {
  * ```typescript
  * @Injectable()
  * export class UserRepository extends BaseRepository {
- *   constructor(prisma: MindsaiPrismaService) {
+ *   constructor(prisma: PrismaService) {
  *     super(prisma, 'User');
  *   }
  *
@@ -50,7 +45,7 @@ export interface PrismaDelegate {
  */
 export abstract class BaseRepository {
   protected constructor(
-    protected readonly prisma: MindsaiPrismaService,
+    protected readonly prisma: PrismaService,
     protected readonly modelName: string,
   ) {}
 
@@ -80,10 +75,7 @@ export abstract class BaseRepository {
     where?: Record<string, unknown>,
     orderBy?: Record<string, 'asc' | 'desc'>,
   ): Promise<{ data: T[]; total: number }> {
-    const [data, total] = await Promise.all([
-      this.delegate.findMany({ skip, take, where, orderBy }),
-      this.delegate.count({ where }),
-    ]);
+    const [data, total] = await Promise.all([this.delegate.findMany({ skip, take, where, orderBy }), this.delegate.count({ where })]);
     return { data: data as T[], total };
   }
 

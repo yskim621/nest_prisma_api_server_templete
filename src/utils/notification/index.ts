@@ -1,4 +1,7 @@
+import { Logger } from '@nestjs/common';
 import axios from 'axios';
+
+const logger = new Logger('NotificationService');
 
 export async function sendNotification(type: string, title: string, textMessage: string, errorObj?: unknown): Promise<void> {
   let themeColor: string;
@@ -37,7 +40,7 @@ export async function sendNotification(type: string, title: string, textMessage:
   try {
     await axios.post(process.env.SLACK_WEBHOOK_ERROR, message);
   } catch (error) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    console.error(`Failed to send ${type} notification to Microsoft Teams:`, error.message);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error(`Failed to send ${type} notification to Microsoft Teams: ${errorMessage}`);
   }
 }

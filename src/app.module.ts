@@ -2,7 +2,7 @@ import { forwardRef, MiddlewareConsumer, Module, NestModule } from '@nestjs/comm
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MindsaiPrismaService } from './prisma/nest_template.prisma.service';
+import { PrismaService } from './prisma/prisma.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
 import { UtilsModule } from './utils/utils.module'; // Global module
@@ -50,7 +50,7 @@ import { ResponseInterceptor } from './interceptors/transform.response.intercept
   controllers: [AppController, MetricsController],
   providers: [
     AppService,
-    MindsaiPrismaService,
+    PrismaService,
     MetricMiddleware,
     Pm2MetricsService,
     {
@@ -73,7 +73,7 @@ import { ResponseInterceptor } from './interceptors/transform.response.intercept
 // export class AppModule {}
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware, MetricMiddleware).forRoutes('*');
+    consumer.apply(LoggerMiddleware, MetricMiddleware).forRoutes('{*path}');
     // .exclude(`${process.env.baseUrl || ''}/health/(.*)`)
     // .forRoutes('*')
   }

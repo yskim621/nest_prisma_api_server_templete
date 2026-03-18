@@ -11,7 +11,7 @@ class PublishMessageDto {
 
   @ApiProperty({ description: '메시지 페이로드', example: { key: 'value' } })
   @IsOptional()
-  payload: any;
+  payload: Record<string, unknown>;
 }
 
 class EmailJobDto {
@@ -45,7 +45,7 @@ class NotificationJobDto {
 class DataProcessingJobDto {
   @ApiProperty({ description: '처리할 데이터', example: { items: [1, 2, 3] } })
   @IsOptional()
-  data: any;
+  data: Record<string, unknown>;
 }
 
 @ApiTags('Queue Sample')

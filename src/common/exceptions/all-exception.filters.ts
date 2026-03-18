@@ -9,7 +9,7 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
-import { sendNotification } from 'src/utils/notification';
+import { sendNotification } from '../../utils/notification';
 import * as fs from 'fs';
 import * as path from 'path';
 import { CommonResponse } from '../common.interface';
@@ -20,10 +20,18 @@ import { QueryException, UnauthorizedClientException } from './common.exception'
 import { errorHandle } from './common.error-handler';
 import { Prisma } from 'prisma/generated/nest_prisma_template';
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-const packageJsonData = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-const packageName: string = packageJsonData?.name;
+interface PackageJson {
+  name: string;
+  version?: string;
+}
+
+const packageJsonData = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8')) as PackageJson;
+const packageName: string = packageJsonData.name;
+
+interface ValidationErrorResponse {
+  error?: string;
+  message?: string | Array<{ constraints?: Record<string, string> }>;
+}
 
 @Catch(BadRequestException)
 export class ValidationExceptionFilter implements ExceptionFilter<BadRequestException> {
@@ -35,19 +43,14 @@ export class ValidationExceptionFilter implements ExceptionFilter<BadRequestExce
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus?.() ?? HttpStatus.UNPROCESSABLE_ENTITY;
 
-    // Safely extract error and message info
-    const exceptionResponse: any = exception.getResponse?.() ?? exception;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-    const message = exceptionResponse?.error ?? exception.message;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return
-    const info = Array.isArray(exceptionResponse?.message) ? exceptionResponse.message.map((data: any) => data.constraints) : exceptionResponse?.message;
+    const exceptionResponse = (exception.getResponse?.() ?? exception) as ValidationErrorResponse;
+    const message = exceptionResponse.error ?? exception.message;
+    const info = Array.isArray(exceptionResponse.message) ? exceptionResponse.message.map((data) => data.constraints) : exceptionResponse.message;
 
     response.status(status).json({
-      result: false,
+      isSuccess: false,
       statusCode: status,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       message,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       info,
       timestamp: new Date().toISOString(),
       path: request.url,
@@ -64,8 +67,8 @@ export class NotFoundFilter implements ExceptionFilter {
 
     const result: CommonResponse<null> = {
       isSuccess: false,
-      code: '5000',
-      message: 'this request is not processed',
+      code: '4040',
+      message: 'The requested resource was not found',
       resSystem: 'c',
       comSystem: 'central-common',
       resTime: new Date(),
@@ -105,7 +108,7 @@ export class HttpExceptionsFilter implements ExceptionFilter {
 
     const result = await errorHandle(exception, request.url, 'central-common');
 
-    res.status(HttpStatus.OK).json({
+    res.status(exception.getStatus()).json({
       ...result,
       path: request.url,
     });
@@ -215,7 +218,7 @@ export class PrismaExceptionFilter implements ExceptionFilter {
 
     const errorResponse: CommonResponse = getQueryErrRes(dbErrType);
 
-    response.status(HttpStatus.OK).json({
+    response.status(status).json({
       ...errorResponse,
       timestamp: new Date().toISOString(),
       path: request.url,

@@ -13,8 +13,8 @@ export class SampleQueueConsumer implements OnModuleInit {
   }
 
   private async startConsuming() {
-    await this.rabbitMQService.consume(SAMPLE_QUEUE, async (message: SampleMessage) => {
-      await this.handleMessage(message);
+    await this.rabbitMQService.consume(SAMPLE_QUEUE, async (message) => {
+      await this.handleMessage(message as SampleMessage);
     });
   }
 
@@ -26,13 +26,13 @@ export class SampleQueueConsumer implements OnModuleInit {
 
     switch (message.type) {
       case 'EMAIL':
-        await this.handleEmailJob(message.payload);
+        await this.handleEmailJob(message.payload as { to: string; subject: string; body: string });
         break;
       case 'NOTIFICATION':
-        await this.handleNotificationJob(message.payload);
+        await this.handleNotificationJob(message.payload as { userId: number; message: string });
         break;
       case 'DATA_PROCESSING':
-        await this.handleDataProcessingJob(message.payload);
+        await this.handleDataProcessingJob(message.payload as { data: Record<string, unknown> });
         break;
       default:
         this.logger.warn(`Unknown message type: ${message.type}`);
@@ -70,7 +70,7 @@ export class SampleQueueConsumer implements OnModuleInit {
   /**
    * 데이터 처리
    */
-  private async handleDataProcessingJob(payload: { data: any }): Promise<void> {
+  private async handleDataProcessingJob(payload: { data: Record<string, unknown> }): Promise<void> {
     this.logger.log(`Processing data: ${JSON.stringify(payload.data)}`);
     // 실제 데이터 처리 로직 구현
 

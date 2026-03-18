@@ -5,7 +5,6 @@ import { CreateUserGroupDto, UpdateUserGroupDto, UpdateGroupPermissionsDto, User
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { GetUserId } from '../auth/get-user.decorator';
 
 @Controller('user-groups')
 @ApiTags('User Groups')

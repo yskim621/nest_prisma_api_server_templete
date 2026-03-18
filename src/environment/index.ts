@@ -47,10 +47,7 @@ const AWS = {
   s3: {
     host: 'https://s3-ap-northeast-2.amazonaws.com',
     bucket: NODE_ENV !== 'prod' ? 'mindsai-dev-files' : 'mindsai-files',
-    frontPath:
-      NODE_ENV !== 'prod'
-        ? 'https://s3.ap-northeast-2.amazonaws.com/mindsai-dev-files'
-        : 'https://s3.ap-northeast-2.amazonaws.com/mindsai-files',
+    frontPath: NODE_ENV !== 'prod' ? 'https://s3.ap-northeast-2.amazonaws.com/mindsai-dev-files' : 'https://s3.ap-northeast-2.amazonaws.com/mindsai-files',
     originUserImage: 'original',
     thumbnailUserImage: 'thumbnails',
   },

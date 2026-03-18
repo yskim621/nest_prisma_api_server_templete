@@ -7,6 +7,7 @@
  * 또는 Docker 내부에서:
  * docker exec -it nest-api-dev npx ts-node test/bull-load-test.ts
  */
+export {};
 
 const API_BASE = process.env.API_BASE || 'http://localhost:4010';
 

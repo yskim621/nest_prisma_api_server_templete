@@ -18,7 +18,8 @@ export class MetricMiddleware implements NestMiddleware {
     const startTime = Date.now();
     res.on('finish', () => {
       const responseTimeInMs = Date.now() - startTime;
-      const route = req.route ? req.route.path : 'unknown_route';
+      const routeObj = (req as unknown as { route?: { path: string } }).route;
+      const route = routeObj?.path ?? 'unknown_route';
       const method = req.method;
       const statusCode = res.statusCode;
 
@@ -26,6 +27,27 @@ export class MetricMiddleware implements NestMiddleware {
     });
     next();
   }
+}
+
+interface Pm2ProcessDescription {
+  pm_id: number;
+  name: string;
+  pm2_env: {
+    NODE_APP_INSTANCE: string;
+    version?: string;
+    exec_interpreter: string;
+    node_version: string;
+    status: string;
+    pm_uptime: number;
+    instances: number;
+    restart_time: number;
+    prev_restart_delay: number;
+    axm_monitor: Record<string, { value: string }>;
+  };
+  monit: {
+    cpu: number;
+    memory: number;
+  };
 }
 
 @Injectable()
@@ -52,15 +74,16 @@ export class Pm2MetricsService {
     ['prev_restart_delay', 'Previous restart delay'],
   ];
 
-  private pm2c(cmd: string, args: any[] = []): Promise<any> {
+  private pm2c(cmd: string, args: unknown[] = []): Promise<unknown> {
     return new Promise((resolve, reject) => {
-      if (typeof pm2[cmd] !== 'function') {
+      if (typeof pm2[cmd as keyof typeof pm2] !== 'function') {
         reject(new Error(`'${cmd}' is not a valid function in pm2 module`));
         return;
       }
-      pm2[cmd].apply(pm2, [
+      const fn = pm2[cmd as keyof typeof pm2] as (...fnArgs: unknown[]) => void;
+      fn.apply(pm2, [
         ...args,
-        (err, resp) => {
+        (err: Error | null, resp: unknown) => {
           if (err) return reject(err);
           return resolve(resp);
         },
@@ -82,8 +105,8 @@ export class Pm2MetricsService {
 
     return this.pm2c('list')
       .then((list) => {
-        for (const p of list) {
-          this.logger.debug(p, p.exec_interpreter, '>>>>>>');
+        for (const p of list as Pm2ProcessDescription[]) {
+          this.logger.debug(JSON.stringify(p), p.pm2_env.exec_interpreter, '>>>>>>');
           const conf = {
             id: p.pm_id,
             name: p.name,
@@ -95,7 +118,7 @@ export class Pm2MetricsService {
             // container_id: this.containerId,
           };
 
-          const values = {
+          const values: Record<string, number> = {
             up: p.pm2_env.status === 'online' ? 1 : 0,
             cpu: p.monit.cpu,
             memory: p.monit.memory,
@@ -109,7 +132,7 @@ export class Pm2MetricsService {
 
           for (const name of names) {
             try {
-              let value: unknown;
+              let value: number;
               if (name === 'Loop delay') {
                 const match = p.pm2_env.axm_monitor[name].value.match(/^[\d.]+/);
                 value = match ? Number.parseFloat(match[0]) : NaN;
@@ -136,7 +159,7 @@ export class Pm2MetricsService {
 
               values[metricName] = value;
             } catch (error) {
-              this.logger.error(error);
+              this.logger.error(error instanceof Error ? error.message : String(error));
             }
           }
 
@@ -153,8 +176,8 @@ export class Pm2MetricsService {
 
         return registry.metrics();
       })
-      .catch((err) => {
-        this.logger.error(err);
+      .catch((err: unknown) => {
+        this.logger.error(err instanceof Error ? err.message : JSON.stringify(err));
         return '';
       });
   }

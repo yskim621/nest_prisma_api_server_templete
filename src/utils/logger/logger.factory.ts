@@ -8,10 +8,13 @@ export class LoggerFactory {
   private readonly loggers = new Map<string, Logger>();
 
   create(context: string): Logger {
-    if (!this.loggers.has(context)) {
-      this.loggers.set(context, new Logger(context));
+    const existing = this.loggers.get(context);
+    if (existing) {
+      return existing;
     }
-    return this.loggers.get(context)!;
+    const newLogger = new Logger(context);
+    this.loggers.set(context, newLogger);
+    return newLogger;
   }
 
   createForClass(target: new (...args: unknown[]) => unknown): Logger {

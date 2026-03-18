@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 
 @Injectable()
 export class AppLogService {
+  private readonly logger = new Logger(AppLogService.name);
   private logsPath = process.env.LOGS_PATH || path.join(__dirname, '..', 'logs');
 
   constructor() {
@@ -35,9 +36,9 @@ export class AppLogService {
 
       // 로그 파일에 추가
       await fs.promises.appendFile(filePath, logEntry, 'utf8');
-      console.log(`Log written to ${filePath}`);
+      this.logger.log(`Log written to ${filePath}`);
     } catch (error) {
-      console.error('Failed to write log:', error);
+      this.logger.error('Failed to write log:', error);
       throw error;
     }
   }

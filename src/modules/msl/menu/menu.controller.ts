@@ -1,19 +1,6 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  Query,
-  ParseIntPipe,
-  UseGuards,
-  HttpCode,
-  HttpStatus,
-  Req,
-} from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, ParseIntPipe, UseGuards, HttpCode, HttpStatus, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { Request } from 'express';
 import { MenuService } from './menu.service';
 import { CreateMenuDto, UpdateMenuDto, CreateMenuTranslationDto, ToggleFavoriteDto, MenuDto } from './dto/menu.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -47,8 +34,8 @@ export class MenuController {
   @Get('tree')
   @ApiOperation({ summary: '사용자 권한 기반 메뉴 트리 조회' })
   @ApiQuery({ name: 'locale', required: false, description: '로케일 (ko, en, ja, zh-CN)' })
-  async getMenuTree(@Req() req: any, @Query('locale') locale?: string) {
-    return this.menuService.getMenuTreeByUser(req.user.userId, locale);
+  async getMenuTree(@Req() req: Request, @Query('locale') locale?: string) {
+    return this.menuService.getMenuTreeByUser(req.user?.userId, locale);
   }
 
   @Get('tree/all')
@@ -61,8 +48,8 @@ export class MenuController {
 
   @Post('favorite')
   @ApiOperation({ summary: '메뉴 즐겨찾기 토글' })
-  async toggleFavorite(@Req() req: any, @Body() dto: ToggleFavoriteDto) {
-    return this.menuService.toggleFavorite(req.user.userId, dto.menuId);
+  async toggleFavorite(@Req() req: Request, @Body() dto: ToggleFavoriteDto) {
+    return this.menuService.toggleFavorite(req.user?.userId, dto.menuId);
   }
 
   @Get(':id')

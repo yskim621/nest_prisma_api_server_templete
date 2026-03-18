@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { SampleTransactionController } from './sample-transaction.controller';
 import { SampleTransactionService } from './sample-transaction.service';
 import { SampleStrategyTransactionService } from './sample-strategy-transaction.service';
-import { PrismaModule } from 'src/prisma/prisma.module';
+import { PrismaModule } from '../../../prisma/prisma.module';
 
 /**
  * SampleTransactionModule - 트랜잭션 주입 패턴 샘플 모듈

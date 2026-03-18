@@ -410,3 +410,6 @@ generated
 
 # firebase
 # firebase.json
+
+# Windows reserved device names
+nul

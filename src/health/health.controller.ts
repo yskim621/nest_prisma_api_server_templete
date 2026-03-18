@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+// NOTE: HttpHealthIndicator is deprecated in @nestjs/terminus v11.1.0 (will be removed in v12)
 import { HealthCheckService, HttpHealthIndicator, HealthCheck } from '@nestjs/terminus';
 import { CommonResponse } from '../common/common.interface';
 import { getQueryErrRes, getDefaultResponse } from '../common/common.response';

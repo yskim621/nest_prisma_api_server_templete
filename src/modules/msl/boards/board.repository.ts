@@ -1,6 +1,6 @@
 import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { Board as PrismaBoard } from '../../../../prisma/generated/nest_prisma_template';
-import { MindsaiPrismaService } from 'src/prisma/nest_template.prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import { FindOneQueryException } from '../../../common/exceptions/common.exception';
 import { generateException } from '../../../common/exceptions/common.error-handler';
@@ -18,7 +18,7 @@ import { BaseRepository, PrismaDelegate } from '../../../common/base';
 export class BoardRepository extends BaseRepository {
   private readonly logger = new Logger(BoardRepository.name);
 
-  constructor(prisma: MindsaiPrismaService) {
+  constructor(prisma: PrismaService) {
     super(prisma, 'Board');
   }
 
@@ -97,7 +97,7 @@ export class BoardRepository extends BaseRepository {
           throw new FindOneQueryException();
         }
 
-        if (foundUserData.accountStatus === AccountStatus.ACTIVE) {
+        if (foundUserData.accountStatus === (AccountStatus.ACTIVE as string)) {
           const board = await tx.board.findUnique({ where: { id } });
           return board;
         }

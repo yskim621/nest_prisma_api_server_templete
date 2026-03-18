@@ -63,10 +63,8 @@ const serverExceptionMap = {
   unknown: Exceptions.UnknownServerException,
 } as const;
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-const packageJsonData = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-const packageName: string = packageJsonData?.name;
+const packageJsonData = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8')) as { name?: string };
+const packageName: string = packageJsonData?.name ?? 'unknown';
 
 const getErrorMessage = (type: string, errPath?: string): string => {
   return `

@@ -2,7 +2,7 @@ import helmet from 'helmet';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { IoAdapter } from '@nestjs/platform-socket.io';
-import { urlencoded, json } from 'body-parser';
+import express from 'express';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { WinstonLoggerService } from './middlewares/logger.middleware';
@@ -10,27 +10,6 @@ import { SERVICE_DOMAIN, PORT, REDIS_HOST, REDIS_PORT } from './environment';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { MindsSignalModule } from './routes/minds-signal.module';
 import { BadRequestClientException } from './common/exceptions/common.exception';
-
-const originalLog = console.log;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-console.log = (...args: any[]) => {
-  // to kst time
-  const kstOffset = 9 * 60 * 60 * 1000; // KST is UTC+9
-  const kstDate = new Date(Date.now() + kstOffset);
-  const kstTimestamp = kstDate.toISOString().replace('T', ' ').substring(0, 19);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  originalLog(`[${kstTimestamp}]`, ...args);
-};
-
-const originalError = console.error;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-console.error = (...args: any[]) => {
-  const kstOffset = 9 * 60 * 60 * 1000; // KST is UTC+9
-  const kstDate = new Date(Date.now() + kstOffset);
-  const kstTimestamp = kstDate.toISOString().replace('T', ' ').substring(0, 19);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  originalError(`[${kstTimestamp}] ❌`, ...args);
-};
 
 async function bootstrap() {
   const logger = new Logger('bootstrap');
@@ -40,9 +19,6 @@ async function bootstrap() {
     cors: true, // CORS(Cross-Origin Resource Sharing)를 기본적으로 활성화
     logger: new WinstonLoggerService(),
   });
-  // 전역 유효성 검사 파이프 설정 (DTO 기반 자동 검증)
-  // app.useGlobalPipes(new ValidationPipe());
-
   // dto 타입 제한
   app.useGlobalPipes(
     new ValidationPipe({
@@ -62,12 +38,6 @@ async function bootstrap() {
     }),
   );
 
-  // app.useGlobalFilters(new HttpExceptionsFilter());
-
-  // app.useGlobalInterceptors(new EveryInterceptor());
-
-  // app.useGlobalInterceptors(new ResponseInterceptor());
-
   // CORS 활성화 (위에서 설정했지만 이중 설정해도 문제 없음)
   app.enableCors();
   // 웹사이트에서 XSS(Cross Site Scripting)공격 방지[인라인 js or css 블럭]
@@ -85,10 +55,10 @@ async function bootstrap() {
   );
 
   // JSON 바디 파서 설정 (요청 본문 용량 제한을 50MB로 설정)
-  app.use(json({ limit: '50mb' }));
+  app.use(express.json({ limit: '50mb' }));
 
   // URL 인코딩된 바디 파서 설정 (폼 전송 방식 지원, limit도 50MB로 설정)
-  app.use(urlencoded({ limit: '50mb', extended: true }));
+  app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
   // WebSocket 어댑터 등록 - 기본적으로는 Socket.IO 기반 WebSocket 처리용
   app.useWebSocketAdapter(new IoAdapter(app));
@@ -113,12 +83,13 @@ async function bootstrap() {
 
   logger.log(`✅ [ Redis 연결 ] → ${REDIS_HOST}:${REDIS_PORT}`);
 
-  await app.listen(process.env.PORT);
+  await app.listen(process.env.PORT ?? 4010);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-  process.env.NODE_ENV != 'prod'
-    ? Logger.log(`🚀  Local Server ready at ${SERVICE_DOMAIN}:${PORT}`, 'Bootstrap')
-    : Logger.log(`🚀  Production Server ready at ${SERVICE_DOMAIN}:${PORT}`, 'Bootstrap');
+  if (process.env.NODE_ENV !== 'prod') {
+    Logger.log(`🚀  Local Server ready at ${SERVICE_DOMAIN}:${PORT}`, 'Bootstrap');
+  } else {
+    Logger.log(`🚀  Production Server ready at ${SERVICE_DOMAIN}:${PORT}`, 'Bootstrap');
+  }
 }
 
 // "Simplicity is the soul of efficiency."

@@ -6,7 +6,7 @@ export const SAMPLE_QUEUE = 'sample_queue';
 export interface SampleMessage {
   id: string;
   type: string;
-  payload: any;
+  payload: Record<string, unknown>;
   timestamp: Date;
 }
 
@@ -19,7 +19,7 @@ export class SampleQueueService {
   /**
    * 샘플 메시지 발행 (Producer)
    */
-  async publishMessage(type: string, payload: any): Promise<SampleMessage> {
+  async publishMessage(type: string, payload: Record<string, unknown>): Promise<SampleMessage> {
     const message: SampleMessage = {
       id: this.generateId(),
       type,
@@ -50,7 +50,7 @@ export class SampleQueueService {
   /**
    * 데이터 처리 작업 큐에 추가
    */
-  async queueDataProcessingJob(data: any): Promise<SampleMessage> {
+  async queueDataProcessingJob(data: Record<string, unknown>): Promise<SampleMessage> {
     return this.publishMessage('DATA_PROCESSING', { data });
   }
 

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { UserModule } from './msl/user/user.module';
 import { BoardsModule } from './msl/boards/boards.module';
-import { MindsSignalModule } from 'src/routes/minds-signal.module';
+import { MindsSignalModule } from '../routes/minds-signal.module';
 import { AuthModule } from './msl/auth/auth.module';
 import { UserGroupModule } from './msl/user-group/user-group.module';
 import { PermissionModule } from './msl/permission/permission.module';

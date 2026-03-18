@@ -14,25 +14,9 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "typeRoots": ["./node_modules/@types", "./src/types"],
-    "paths": {
-      "@app/common": ["libs/common/src"],
-      "@app/common/*": ["libs/common/src/*"],
-      "@app/auth": ["libs/auth/src"],
-      "@app/auth/*": ["libs/auth/src/*"],
-      "@app/database": ["libs/database/src"],
-      "@app/database/*": ["libs/database/src/*"],
-      "@app/cache": ["libs/cache/src"],
-      "@app/cache/*": ["libs/cache/src/*"],
-      "@app/config": ["libs/config/src"],
-      "@app/config/*": ["libs/config/src/*"],
-      "@app/logger": ["libs/logger/src"],
-      "@app/logger/*": ["libs/logger/src/*"]
-    }
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "include": [
-    "apps/**/*",
-    "libs/**/*",
     "src/**/*",
     "test/**/*",
     "src/**/*.d.ts"

@@ -94,7 +94,7 @@ export class SampleBullController {
       data: jobs.map((job) => ({
         id: job.id,
         name: job.name,
-        data: job.data,
+        data: job.data as Record<string, unknown>,
         timestamp: job.timestamp,
       })),
     };

@@ -3,8 +3,8 @@ import { PrismaClient, Prisma } from '../../prisma/generated/nest_prisma_templat
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 
 @Injectable()
-export class MindsaiPrismaService extends PrismaClient implements OnModuleInit {
-  private readonly logger = new Logger(MindsaiPrismaService.name);
+export class PrismaService extends PrismaClient implements OnModuleInit {
+  private readonly logger = new Logger(PrismaService.name);
   timezone = process.env.TIMEZONE || 'Asia/Seoul';
   loglevel = process.env.LOGLEVEL || 'query';
 
