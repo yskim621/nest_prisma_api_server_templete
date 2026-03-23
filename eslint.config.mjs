@@ -34,6 +34,7 @@ export default tseslint.config(
       // '@typescript-eslint/no-unsafe-return': 'off', // 타입이 명확하지 않은 값을 리턴하는 것 허용
       // '@typescript-eslint/no-unsafe-call': 'off',
       // "@typescript-eslint/no-unsafe-member-access": 'off'
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     },
   },
 );

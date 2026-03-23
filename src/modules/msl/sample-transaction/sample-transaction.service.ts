@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/require-await */
 import { Injectable, Logger } from '@nestjs/common';
-import { MindsaiPrismaService } from 'src/prisma/nest_template.prisma.service';
-import { TransactionClient } from 'src/common/base/transaction.types';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { TransactionClient } from '../../../common/base/transaction.types';
 import {
   CreateOrderDto,
   CreateOrderItemDto,
@@ -13,8 +11,6 @@ import {
   PaymentDto,
   PaymentMethod,
   PaymentStatus,
-  UpdateOrderDto,
-  UpdatePaymentDto,
 } from './dto/sample-transaction.dto';
 
 /**
@@ -31,7 +27,7 @@ import {
 export class SampleTransactionService {
   private readonly logger = new Logger(SampleTransactionService.name);
 
-  constructor(private readonly prisma: MindsaiPrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   // ============================================
   // 메인 트랜잭션 메서드
@@ -126,8 +122,8 @@ export class SampleTransactionService {
    * @param tx - 트랜잭션 클라이언트
    * @param data - 주문 데이터
    */
-  private async createOrder(tx: TransactionClient, data: { userId: number; totalAmount: number }): Promise<OrderDto> {
-    // 실제 구현에서는 tx.order.create() 사용
+  private createOrder(_tx: TransactionClient, data: { userId: number; totalAmount: number }): Promise<OrderDto> {
+    // 실제 구현에서는 _tx.order.create() 사용
     // 샘플이므로 모의 데이터 반환
     const order: OrderDto = {
       id: Math.floor(Math.random() * 10000),
@@ -139,10 +135,10 @@ export class SampleTransactionService {
     };
 
     this.logger.debug(`주문 생성됨: ${order.id}`);
-    return order;
+    return Promise.resolve(order);
 
     // 실제 Prisma 사용 예:
-    // return tx.order.create({
+    // return _tx.order.create({
     //   data: {
     //     userId: data.userId,
     //     status: OrderStatus.PENDING,
@@ -154,7 +150,7 @@ export class SampleTransactionService {
   /**
    * 주문 항목 생성 (트랜잭션 주입)
    */
-  private async createOrderItems(tx: TransactionClient, orderId: number, items: CreateOrderItemDto[]): Promise<OrderItemDto[]> {
+  private createOrderItems(_tx: TransactionClient, orderId: number, items: CreateOrderItemDto[]): Promise<OrderItemDto[]> {
     const createdItems: OrderItemDto[] = items.map((item, index) => ({
       id: Math.floor(Math.random() * 10000) + index,
       orderId,
@@ -166,10 +162,10 @@ export class SampleTransactionService {
     }));
 
     this.logger.debug(`주문 항목 ${createdItems.length}개 생성됨`);
-    return createdItems;
+    return Promise.resolve(createdItems);
 
     // 실제 Prisma 사용 예:
-    // return tx.orderItem.createMany({
+    // return _tx.orderItem.createMany({
     //   data: items.map(item => ({
     //     orderId,
     //     productId: item.productId,
@@ -184,7 +180,7 @@ export class SampleTransactionService {
   /**
    * 결제 생성 (트랜잭션 주입)
    */
-  private async createPayment(tx: TransactionClient, data: { orderId: number; amount: number; method: PaymentMethod }): Promise<PaymentDto> {
+  private createPayment(_tx: TransactionClient, data: { orderId: number; amount: number; method: PaymentMethod }): Promise<PaymentDto> {
     const payment: PaymentDto = {
       id: Math.floor(Math.random() * 10000),
       orderId: data.orderId,
@@ -196,10 +192,10 @@ export class SampleTransactionService {
     };
 
     this.logger.debug(`결제 생성됨: ${payment.id}`);
-    return payment;
+    return Promise.resolve(payment);
 
     // 실제 Prisma 사용 예:
-    // return tx.payment.create({
+    // return _tx.payment.create({
     //   data: {
     //     orderId: data.orderId,
     //     amount: data.amount,
@@ -212,21 +208,21 @@ export class SampleTransactionService {
   /**
    * 주문 상태 업데이트 (트랜잭션 주입)
    */
-  private async updateOrderStatus(tx: TransactionClient, orderId: number, status: OrderStatus): Promise<OrderDto> {
+  private updateOrderStatus(_tx: TransactionClient, orderId: number, status: OrderStatus): Promise<OrderDto> {
     this.logger.debug(`주문 상태 변경: ${orderId} -> ${status}`);
 
     // 모의 데이터 반환
-    return {
+    return Promise.resolve({
       id: orderId,
       userId: 1,
       status,
       totalAmount: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
-    };
+    });
 
     // 실제 Prisma 사용 예:
-    // return tx.order.update({
+    // return _tx.order.update({
     //   where: { id: orderId },
     //   data: { status, updatedAt: new Date() },
     // });
@@ -235,50 +231,50 @@ export class SampleTransactionService {
   /**
    * 주문 조회 (트랜잭션 주입)
    */
-  private async findOrderById(tx: TransactionClient, orderId: number): Promise<OrderDto | null> {
+  private findOrderById(_tx: TransactionClient, orderId: number): Promise<OrderDto | null> {
     // 실제 Prisma 사용 예:
-    // return tx.order.findUnique({ where: { id: orderId } });
+    // return _tx.order.findUnique({ where: { id: orderId } });
 
-    return {
+    return Promise.resolve({
       id: orderId,
       userId: 1,
       status: OrderStatus.CONFIRMED,
       totalAmount: 10000,
       createdAt: new Date(),
       updatedAt: new Date(),
-    };
+    });
   }
 
   /**
    * 주문 항목 조회 (트랜잭션 주입)
    */
-  private async findOrderItems(tx: TransactionClient, orderId: number): Promise<OrderItemDto[]> {
+  private findOrderItems(_tx: TransactionClient, _orderId: number): Promise<OrderItemDto[]> {
     // 실제 Prisma 사용 예:
-    // return tx.orderItem.findMany({ where: { orderId } });
+    // return _tx.orderItem.findMany({ where: { orderId: _orderId } });
 
-    return [];
+    return Promise.resolve([] as OrderItemDto[]);
   }
 
   /**
    * 결제 환불 (트랜잭션 주입)
    */
-  private async refundPayment(tx: TransactionClient, orderId: number): Promise<PaymentDto> {
+  private refundPayment(_tx: TransactionClient, orderId: number): Promise<PaymentDto> {
     this.logger.debug(`결제 환불 처리: 주문 ID ${orderId}`);
 
     // 실제 Prisma 사용 예:
-    // return tx.payment.update({
+    // return _tx.payment.update({
     //   where: { orderId },
     //   data: { status: PaymentStatus.REFUNDED },
     // });
 
-    return {
+    return Promise.resolve({
       id: 1,
       orderId,
       amount: 10000,
       method: PaymentMethod.CREDIT_CARD,
       status: PaymentStatus.REFUNDED,
       createdAt: new Date(),
-    };
+    });
   }
 
   // ============================================

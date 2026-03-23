@@ -1,7 +1,7 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { CommonResponse, ComSystem } from 'src/common/common.interface';
+import { CommonResponse, ComSystem } from '../common/common.interface';
 import { getDefaultResponse, getSuccessResponse } from '../common/common.response';
 
 @Injectable()
@@ -33,8 +33,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, CommonResponse
           };
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const { code, data, comSystem } = res;
+        const { code, data, comSystem } = res as { code?: string; data?: T | T[]; comSystem?: ComSystem };
         if (!code) {
           return getDefaultResponse(res as T | T[]);
         }
@@ -43,7 +42,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, CommonResponse
           return res as CommonResponse<T>;
         }
 
-        return getSuccessResponse(comSystem as ComSystem, data as T | T[]);
+        return getSuccessResponse(comSystem, data);
       }),
     );
   }

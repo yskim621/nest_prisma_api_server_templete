@@ -1,11 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { MindsaiPrismaService } from 'src/prisma/nest_template.prisma.service';
-import { BaseRepository, PrismaDelegate } from 'src/common/base';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { BaseRepository, PrismaDelegate } from '../../../common/base';
 import { CreateMenuDto, CreateMenuTranslationDto, UpdateMenuDto } from './dto/menu.dto';
+import { Menu, MenuTranslation } from '../../../../prisma/generated/nest_prisma_template';
+
+type MenuWithTranslations = Menu & { translations: MenuTranslation[] };
+
+export interface MenuTreeNode {
+  id: number;
+  pageId: string | null;
+  type: string;
+  depth: number;
+  parentMenuId: number | null;
+  name: string;
+  description: string | null;
+  menuOrder: number;
+  isFavorite?: boolean;
+  children: MenuTreeNode[];
+}
 
 @Injectable()
 export class MenuRepository extends BaseRepository {
-  constructor(prisma: MindsaiPrismaService) {
+  constructor(prisma: PrismaService) {
     super(prisma, 'Menu');
   }
 
@@ -91,7 +107,7 @@ export class MenuRepository extends BaseRepository {
       orderBy: [{ depth: 'asc' }, { menuOrder: 'asc' }],
     });
 
-    return this.buildTree(menus, locale);
+    return this.buildTree(menus as MenuWithTranslations[], locale);
   }
 
   async getMenuTreeByUser(userId: number, locale?: string) {
@@ -101,18 +117,17 @@ export class MenuRepository extends BaseRepository {
       select: { userGroupId: true },
     });
 
-    const [userPerms, groupPerms] = await Promise.all([
-      this.prisma.userPermissionMap.findMany({
-        where: { userId, permission: { type: 'MENU', delYn: 'N' } },
-        select: { permission: { select: { menuId: true, resource: true } } },
-      }),
-      user?.userGroupId
-        ? this.prisma.groupPermissionMap.findMany({
-            where: { groupId: user.userGroupId, permission: { type: 'MENU', delYn: 'N' } },
-            select: { permission: { select: { menuId: true, resource: true } } },
-          })
-        : Promise.resolve([]),
-    ]);
+    const userPerms = await this.prisma.userPermissionMap.findMany({
+      where: { userId, permission: { type: 'MENU', delYn: 'N' } },
+      select: { permission: { select: { menuId: true, resource: true } } },
+    });
+
+    const groupPerms = user?.userGroupId
+      ? await this.prisma.groupPermissionMap.findMany({
+          where: { groupId: user.userGroupId, permission: { type: 'MENU', delYn: 'N' } },
+          select: { permission: { select: { menuId: true, resource: true } } },
+        })
+      : [];
 
     // MASTER 권한 체크
     const hasMasterPerm = await this.prisma.userPermissionMap.findFirst({
@@ -155,7 +170,7 @@ export class MenuRepository extends BaseRepository {
 
     const filteredMenus = hasAllPermission ? menus : menus.filter((m) => allowedMenuIds.has(m.id) || m.type === 'FOLDER');
 
-    return this.buildTree(filteredMenus, locale, favoriteSet);
+    return this.buildTree(filteredMenus as MenuWithTranslations[], locale, favoriteSet);
   }
 
   async toggleFavorite(userId: number, menuId: number) {
@@ -176,18 +191,14 @@ export class MenuRepository extends BaseRepository {
     return { isFavorite: true };
   }
 
-  private buildTree(
-    menus: any[],
-    locale?: string,
-    favoriteSet?: Set<number>,
-  ) {
-    const menuMap = new Map<number, any>();
-    const roots: any[] = [];
+  private buildTree(menus: MenuWithTranslations[], locale?: string, favoriteSet?: Set<number>): MenuTreeNode[] {
+    const menuMap = new Map<number, MenuTreeNode>();
+    const roots: MenuTreeNode[] = [];
 
     for (const menu of menus) {
       const translation = locale && menu.translations?.length > 0 ? menu.translations[0] : null;
 
-      const node = {
+      const node: MenuTreeNode = {
         id: menu.id,
         pageId: menu.pageId,
         type: menu.type,
@@ -215,7 +226,7 @@ export class MenuRepository extends BaseRepository {
     return this.pruneEmptyFolders(roots);
   }
 
-  private pruneEmptyFolders(nodes: any[]): any[] {
+  private pruneEmptyFolders(nodes: MenuTreeNode[]): MenuTreeNode[] {
     return nodes.filter((node) => {
       if (node.type === 'FOLDER') {
         node.children = this.pruneEmptyFolders(node.children);

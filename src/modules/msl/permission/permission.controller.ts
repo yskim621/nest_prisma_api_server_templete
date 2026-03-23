@@ -1,19 +1,6 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  Query,
-  ParseIntPipe,
-  UseGuards,
-  HttpCode,
-  HttpStatus,
-  Req,
-} from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, ParseIntPipe, UseGuards, HttpCode, HttpStatus, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { Request } from 'express';
 import { PermissionService } from './permission.service';
 import { CreatePermissionDto, UpdatePermissionDto, UpdateUserPermissionsDto, PermissionDto } from './dto/permission.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -46,8 +33,8 @@ export class PermissionController {
 
   @Get('owned')
   @ApiOperation({ summary: '현재 사용자의 보유 권한 조회 (사용자 직접 + 그룹 상속)' })
-  async getOwnedPermissions(@Req() req: any) {
-    return this.permissionService.getOwnedPermissions(req.user.userId);
+  async getOwnedPermissions(@Req() req: Request) {
+    return this.permissionService.getOwnedPermissions(req.user?.userId);
   }
 
   @Get('pages/:pageId/actions')

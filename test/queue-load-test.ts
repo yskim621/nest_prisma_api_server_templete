@@ -6,6 +6,7 @@
  * 실행 방법:
  * npx ts-node test/queue-load-test.ts
  */
+export {};
 
 const API_URL = 'http://localhost:4010';
 const TOTAL_MESSAGES = 10;

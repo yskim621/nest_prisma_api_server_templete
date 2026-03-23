@@ -1,9 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { MindsaiPrismaService } from 'src/prisma/nest_template.prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
-import { SALT_ROUNDS, ACCESS_TOKEN_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN } from 'src/environment';
+import type { StringValue } from 'ms';
+import { SALT_ROUNDS, ACCESS_TOKEN_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN } from '../../../environment';
 
 export interface TokenPayload {
   sub: number;
@@ -27,7 +28,7 @@ export interface AuthResponse {
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly prisma: MindsaiPrismaService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async login(dto: LoginDto): Promise<AuthResponse> {
@@ -57,30 +58,26 @@ export class AuthService {
     };
   }
 
-  async hashPassword(password: string): Promise<string> {
+  hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, SALT_ROUNDS);
   }
 
-  async validatePassword(password: string, hashedPassword: string): Promise<boolean> {
+  validatePassword(password: string, hashedPassword: string): Promise<boolean> {
     return bcrypt.compare(password, hashedPassword);
   }
 
-  private generateTokens(
-    userId: number,
-    email: string,
-    role: string,
-  ): { accessToken: string; refreshToken: string; expiresIn: string } {
+  private generateTokens(userId: number, email: string, role: string): { accessToken: string; refreshToken: string; expiresIn: string } {
     const accessPayload: TokenPayload = { sub: userId, email, role, type: 'access' };
     const refreshPayload: TokenPayload = { sub: userId, email, role, type: 'refresh' };
 
     return {
-      accessToken: this.jwtService.sign(accessPayload, { expiresIn: ACCESS_TOKEN_EXPIRES_IN }),
-      refreshToken: this.jwtService.sign(refreshPayload, { expiresIn: REFRESH_TOKEN_EXPIRES_IN }),
+      accessToken: this.jwtService.sign(accessPayload, { expiresIn: ACCESS_TOKEN_EXPIRES_IN as StringValue }),
+      refreshToken: this.jwtService.sign(refreshPayload, { expiresIn: REFRESH_TOKEN_EXPIRES_IN as StringValue }),
       expiresIn: ACCESS_TOKEN_EXPIRES_IN,
     };
   }
 
-  async validateToken(token: string): Promise<TokenPayload | null> {
+  validateToken(token: string): TokenPayload | null {
     try {
       return this.jwtService.verify<TokenPayload>(token);
     } catch {
@@ -88,8 +85,8 @@ export class AuthService {
     }
   }
 
-  async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; expiresIn: string }> {
-    const payload = await this.validateToken(refreshToken);
+  refreshAccessToken(refreshToken: string): { accessToken: string; expiresIn: string } {
+    const payload = this.validateToken(refreshToken);
 
     if (!payload || payload.type !== 'refresh') {
       throw new UnauthorizedException('Invalid refresh token');
@@ -98,7 +95,7 @@ export class AuthService {
     const accessPayload: TokenPayload = { sub: payload.sub, email: payload.email, role: payload.role, type: 'access' };
 
     return {
-      accessToken: this.jwtService.sign(accessPayload, { expiresIn: ACCESS_TOKEN_EXPIRES_IN }),
+      accessToken: this.jwtService.sign(accessPayload, { expiresIn: ACCESS_TOKEN_EXPIRES_IN as StringValue }),
       expiresIn: ACCESS_TOKEN_EXPIRES_IN,
     };
   }

@@ -4,7 +4,7 @@ export const getCurrentTime = (): Date => {
   return koreaNow;
 };
 
-export const changeKoreaTime = (date): Date => {
+export const changeKoreaTime = (date: Date): Date => {
   const offset = 1000 * 60 * 60 * 9;
   const koreaNow = new Date(date.getTime() + offset);
   return koreaNow;

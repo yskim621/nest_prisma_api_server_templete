@@ -1,6 +1,5 @@
 import { Controller, Get, Res } from '@nestjs/common';
 import { Response } from 'express';
-import { register } from 'prom-client';
 import { Registry, collectDefaultMetrics } from 'prom-client';
 import { Pm2MetricsService } from './middlewares/metric.middleware';
 const client = new Registry();
@@ -24,7 +23,7 @@ export class MetricsController {
       res.set('Content-Type', 'text/plain');
       res.send(appMetrics);
     } catch (err) {
-      res.status(500).send(err.toString());
+      res.status(500).send(err instanceof Error ? err.message : String(err));
     }
   }
 }

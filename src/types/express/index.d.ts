@@ -1,10 +1,13 @@
-import { UserPayload } from '../../common/Auth.interface';
 // Express Request 타입 확장
+export {};
+
 declare global {
   namespace Express {
-    interface Request {
-      user?: UserPayload;
-      ip?: string;
+    interface User {
+      userId: number;
+      email: string;
+      role: string;
+      type: 'access' | 'refresh';
     }
   }
 }

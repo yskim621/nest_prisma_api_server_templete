@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Body, Controller, Delete, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SampleTransactionService } from './sample-transaction.service';
@@ -48,7 +47,7 @@ export class SampleTransactionController {
     @Param('evaluationId') evaluationId: string,
     @Param('scale') scale: EvaluationScaleType,
     @Body() body: { selectedItems: number[] },
-  ): Promise<any> {
+  ): Promise<void> {
     // 외부에서 트랜잭션을 시작하고 서비스에 주입
     return this.sampleStrategyService.updateMultipleScales(evaluationId, [{ scale, selectedItems: body.selectedItems }]);
   }

@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { MindsaiPrismaService } from 'src/prisma/nest_template.prisma.service';
-import { BaseRepository, PrismaDelegate } from 'src/common/base';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { BaseRepository, PrismaDelegate } from '../../../common/base';
 import { CreateUserGroupDto, UpdateUserGroupDto } from './dto/user-group.dto';
 
 @Injectable()
 export class UserGroupRepository extends BaseRepository {
-  constructor(prisma: MindsaiPrismaService) {
+  constructor(prisma: PrismaService) {
     super(prisma, 'UserGroup');
   }
 

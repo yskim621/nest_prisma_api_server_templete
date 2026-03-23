@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '../../../../prisma/generated/nest_prisma_template';
-import { MindsaiPrismaService } from 'src/prisma/nest_template.prisma.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { BaseRepository, PrismaDelegate } from '../../../common/base';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 
@@ -12,7 +12,7 @@ import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
  */
 @Injectable()
 export class UserRepository extends BaseRepository {
-  constructor(prisma: MindsaiPrismaService) {
+  constructor(prisma: PrismaService) {
     super(prisma, 'User');
   }
 

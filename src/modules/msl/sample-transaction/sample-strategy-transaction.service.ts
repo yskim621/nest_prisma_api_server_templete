@@ -1,11 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/require-await */
 import { Injectable, Logger } from '@nestjs/common';
-import { MindsaiPrismaService } from 'src/prisma/nest_template.prisma.service';
-import { TransactionClient } from 'src/common/base/transaction.types';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { TransactionClient } from '../../../common/base/transaction.types';
 
 /**
  * Strategy 패턴 + 트랜잭션 주입 패턴 샘플
@@ -48,7 +43,7 @@ interface ScaleConfig<TResult extends IEvaluationResult> {
   /** 결과 처리 함수 */
   processResult: (selectedItems: number[]) => TResult;
   /** 업데이트 데이터 생성 함수 */
-  buildUpdateData: (result: TResult, selectedItems: number[]) => Record<string, any>;
+  buildUpdateData: (result: TResult, selectedItems: number[]) => Record<string, unknown>;
 }
 
 // ============================================
@@ -82,7 +77,7 @@ interface SleepResult extends IEvaluationResult {
 export class SampleStrategyTransactionService {
   private readonly logger = new Logger(SampleStrategyTransactionService.name);
 
-  constructor(private readonly prisma: MindsaiPrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * 스케일별 설정 맵
@@ -90,7 +85,7 @@ export class SampleStrategyTransactionService {
    * 새로운 스케일 추가 시 이 맵에만 설정을 추가하면 됨
    * switch-case 50줄 → 설정 객체 10줄
    */
-  private readonly scaleConfigMap: Record<EvaluationScaleType, ScaleConfig<any>> = {
+  private readonly scaleConfigMap: Record<EvaluationScaleType, ScaleConfig<IEvaluationResult>> = {
     [EvaluationScaleType.STRESS]: {
       modelName: 'stressResult',
       resultCodeField: 'stressResultCode',
@@ -169,7 +164,12 @@ export class SampleStrategyTransactionService {
    * @param scale - 평가 스케일 타입
    * @param selectedItems - 선택된 항목들
    */
-  async updateEvalScaleResultData(tx: TransactionClient, evaluationId: string, scale: EvaluationScaleType, selectedItems: number[]): Promise<any> {
+  async updateEvalScaleResultData(
+    tx: TransactionClient,
+    evaluationId: string,
+    scale: EvaluationScaleType,
+    selectedItems: number[],
+  ): Promise<Record<string, unknown>> {
     // 1. 스케일 설정 조회
     const config = this.scaleConfigMap[scale];
     if (!config) {
@@ -226,22 +226,27 @@ export class SampleStrategyTransactionService {
   /**
    * 결과 데이터 조회 (트랜잭션 주입)
    */
-  private async findResultData(tx: TransactionClient, modelName: string, evaluationId: string): Promise<any> {
+  private findResultData(_tx: TransactionClient, modelName: string, evaluationId: string): Promise<Record<string, unknown>> {
     // 실제 구현:
-    // return (tx as any)[modelName].findFirst({
+    // return (_tx as Record<string, unknown>)[modelName].findFirst({
     //   where: { proveEvaluationUuid: evaluationId },
     // });
 
     // 샘플 데이터 반환
-    return { id: 1, evaluationId };
+    return Promise.resolve({ id: 1, evaluationId });
   }
 
   /**
    * 메인 평가 결과 업데이트 (트랜잭션 주입)
    */
-  private async updateMainEvaluationResult(tx: TransactionClient, evaluationId: string, resultCodeField: string, resultCode: string): Promise<any> {
+  private updateMainEvaluationResult(
+    _tx: TransactionClient,
+    evaluationId: string,
+    resultCodeField: string,
+    resultCode: string,
+  ): Promise<Record<string, unknown>> {
     // 실제 구현:
-    // return tx.proveEvaluationResult.update({
+    // return _tx.proveEvaluationResult.update({
     //   where: { proveEvaluationUuid: evaluationId },
     //   data: {
     //     [resultCodeField]: resultCode,
@@ -250,21 +255,26 @@ export class SampleStrategyTransactionService {
     // });
 
     this.logger.debug(`메인 평가 결과 업데이트: ${resultCodeField} = ${resultCode}`);
-    return { evaluationId, [resultCodeField]: resultCode };
+    return Promise.resolve({ evaluationId, [resultCodeField]: resultCode });
   }
 
   /**
    * 스케일별 결과 업데이트 (트랜잭션 주입)
    */
-  private async updateScaleResult(tx: TransactionClient, modelName: string, evaluationId: string, updateData: Record<string, any>): Promise<any> {
+  private updateScaleResult(
+    _tx: TransactionClient,
+    modelName: string,
+    evaluationId: string,
+    updateData: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
     // 실제 구현:
-    // return (tx as any)[modelName].update({
+    // return (_tx as Record<string, unknown>)[modelName].update({
     //   where: { proveEvaluationUuid: evaluationId },
     //   data: updateData,
     // });
 
     this.logger.debug(`스케일 결과 업데이트: ${modelName}`);
-    return { modelName, evaluationId, ...updateData };
+    return Promise.resolve({ modelName, evaluationId, ...updateData });
   }
 
   // ============================================

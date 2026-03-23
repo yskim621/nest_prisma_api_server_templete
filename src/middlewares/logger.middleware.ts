@@ -4,23 +4,19 @@ import { NextFunction, Request, Response } from 'express';
 import * as winston from 'winston';
 import { TransformableInfo } from 'logform';
 import moment from 'moment-timezone';
-import { join } from 'path';
 import DailyRotateFile from 'winston-daily-rotate-file';
-import { ServiceUnavailableServerException } from '../common/exceptions/common.exception';
-
-const logDir: string = join(__dirname, '../../../logs');
 
 // const consoleLogFormat = winston.format.combine(winston.format.colorize(), winston.format.simple());
 const fileLogFormat = winston.format.combine(winston.format.timestamp(), winston.format.json());
 const formattedTimeStamp = moment().tz('Asia/Seoul').format('YYYY-MM-DD HH:mm:ss');
 
-const stringify = (obj: any) => {
+const stringify = (obj: unknown): string => {
   if (typeof obj !== 'object' || obj === null) {
-    return obj;
+    return typeof obj === 'undefined' ? 'undefined' : String(obj as string | number | boolean);
   }
 
   const cache = new Set();
-  const jsonString = JSON.stringify(obj, (key, value) => {
+  const jsonString = JSON.stringify(obj, (_key, value: unknown) => {
     if (typeof value === 'object' && value !== null) {
       if (cache.has(value)) {
         return; // 순환 참조 제거
@@ -37,12 +33,11 @@ const logMessageFormat = winston.format.printf((info: TransformableInfo) => {
   const { level, message, ...rest } = info;
   const instance = process.env.NODE_APP_INSTANCE || 0;
 
-  const messageParts = [message];
+  const messageParts = [message as string];
   for (const key in rest) {
     messageParts.push(stringify(rest[key]));
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-base-to-string
   const logContent = messageParts.join(' ');
 
   return `${formattedTimeStamp} [Instance ${instance}] ${level}: ${logContent}`;
@@ -51,20 +46,15 @@ const logMessageFormat = winston.format.printf((info: TransformableInfo) => {
 const consoleLogFormat = winston.format.combine(
   winston.format.colorize(),
   winston.format.errors({ stack: true }),
-  winston.format((info: TransformableInfo, opts) => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const args = info[Symbol.for('splat')] as any;
+  winston.format((info: TransformableInfo) => {
+    const args = info[Symbol.for('splat')] as unknown[] | undefined;
     if (args) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+      const msg = typeof info.message === 'string' ? info.message : stringify(info.message);
+      const parts: string[] = [msg];
       args.forEach((arg) => {
-        if (typeof arg === 'object') {
-          // eslint-disable-next-line @typescript-eslint/no-base-to-string,@typescript-eslint/restrict-plus-operands
-          info.message += ' ' + stringify(arg);
-        } else {
-          // eslint-disable-next-line @typescript-eslint/no-base-to-string,@typescript-eslint/restrict-plus-operands
-          info.message += ' ' + arg;
-        }
+        parts.push(typeof arg === 'object' ? stringify(arg) : String(arg as string | number | boolean));
       });
+      info.message = parts.join(' ');
     }
 
     if (info.message && typeof info.message === 'object') {
@@ -150,28 +140,23 @@ const logger = winston.createLogger({
 });
 
 export class WinstonLoggerService implements LoggerService {
-  log(message: any, context?: string) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  log(message: string, context?: string) {
     logger.log({ level: 'info', message, context });
   }
 
-  error(message: any, trace?: string, context?: string) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  error(message: string, trace?: string, context?: string) {
     logger.log({ level: 'error', message, trace, context });
   }
 
-  warn(message: any, context?: string) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  warn(message: string, context?: string) {
     logger.log({ level: 'warn', message, context });
   }
 
-  debug(message: any, context?: string) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  debug(message: string, context?: string) {
     logger.log({ level: 'debug', message, context });
   }
 
-  verbose(message: any, context?: string) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  verbose(message: string, context?: string) {
     logger.log({ level: 'verbose', message, context });
   }
 }
@@ -181,8 +166,6 @@ export class LoggerMiddleware implements NestMiddleware {
   private readonly logger = new WinstonLoggerService();
 
   use(req: Request, res: Response, next: NextFunction) {
-    // throw new ServiceUnavailableServerException('central-common');
-
     if (req.originalUrl !== '/metrics') {
       this.requestLog(req);
 
@@ -193,29 +176,32 @@ export class LoggerMiddleware implements NestMiddleware {
 
       const chunks: Buffer[] = [];
 
-      res.write = (...args: any[]) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
+      (res as any).write = (...args: unknown[]): boolean => {
         const chunk = args[0];
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        chunks.push(chunk);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return oldWrite.apply(res, args);
+        if (Buffer.isBuffer(chunk)) {
+          chunks.push(chunk);
+        } else if (typeof chunk === 'string') {
+          chunks.push(Buffer.from(chunk));
+        }
+        return oldWrite.apply(res, args as Parameters<typeof oldWrite>);
       };
 
-      res.end = (...args: any[]) => {
+      (res as any).end = (...args: unknown[]): Response => {
         if (args[0]) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const chunk = args[0];
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          chunks.push(chunk);
+          if (Buffer.isBuffer(chunk)) {
+            chunks.push(chunk);
+          } else if (typeof chunk === 'string') {
+            chunks.push(Buffer.from(chunk));
+          }
         }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return oldEnd.apply(res, args);
+        return oldEnd.apply(res, args as Parameters<typeof oldEnd>);
       };
+      /* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
 
       res.once('finish', () => {
-        const responseBody = Buffer.concat(chunks).toString('utf8');
-        this.responseLog(res, responseBody);
+        this.responseLog(res);
       });
     }
 
@@ -223,8 +209,8 @@ export class LoggerMiddleware implements NestMiddleware {
   }
 
   private requestLog(req: Request) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const { body, params, query } = req;
+    const { params, query } = req;
+    const body = req.body as Record<string, unknown> | undefined;
     const requestUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
     const messageLines = [
       '---------------------------------------------------------------------------------',
@@ -239,14 +225,14 @@ export class LoggerMiddleware implements NestMiddleware {
     }
   }
 
-  private responseLog(res: Response, responseBody: string) {
+  private responseLog(res: Response) {
     const { statusCode, req, locals } = res;
     const requestUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
     const messageLines = [
       '---------------------------------------------------------------------------------',
       `response [${req.method}] ${requestUrl}`,
       `response status: ${JSON.stringify(statusCode)}`,
-      `response body: ${JSON.stringify(locals?.originalBody || '')}`,
+      `response body: ${JSON.stringify((locals?.originalBody as string) || '')}`,
       '---------------------------------------------------------------------------------',
     ];
     for (const line of messageLines) {

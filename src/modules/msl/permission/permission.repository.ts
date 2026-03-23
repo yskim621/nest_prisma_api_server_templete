@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { MindsaiPrismaService } from 'src/prisma/nest_template.prisma.service';
-import { BaseRepository, PrismaDelegate } from 'src/common/base';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { BaseRepository, PrismaDelegate } from '../../../common/base';
 import { CreatePermissionDto, UpdatePermissionDto } from './dto/permission.dto';
 
 @Injectable()
 export class PermissionRepository extends BaseRepository {
-  constructor(prisma: MindsaiPrismaService) {
+  constructor(prisma: PrismaService) {
     super(prisma, 'Permission');
   }
 
@@ -117,18 +117,17 @@ export class PermissionRepository extends BaseRepository {
       select: { userGroupId: true },
     });
 
-    const [userPerms, groupPerms] = await Promise.all([
-      this.prisma.userPermissionMap.findMany({
-        where: { userId },
-        include: { permission: { include: { menu: { select: { id: true, name: true } } } } },
-      }),
-      user?.userGroupId
-        ? this.prisma.groupPermissionMap.findMany({
-            where: { groupId: user.userGroupId },
-            include: { permission: { include: { menu: { select: { id: true, name: true } } } } },
-          })
-        : Promise.resolve([]),
-    ]);
+    const userPerms = await this.prisma.userPermissionMap.findMany({
+      where: { userId },
+      include: { permission: { include: { menu: { select: { id: true, name: true } } } } },
+    });
+
+    const groupPerms = user?.userGroupId
+      ? await this.prisma.groupPermissionMap.findMany({
+          where: { groupId: user.userGroupId },
+          include: { permission: { include: { menu: { select: { id: true, name: true } } } } },
+        })
+      : [];
 
     // 중복 제거: 사용자 직접 권한 + 그룹 상속 권한
     const permissionMap = new Map<number, (typeof userPerms)[0]['permission']>();

@@ -1,4 +1,7 @@
+import { Logger } from '@nestjs/common';
 import * as crypto from 'crypto';
+
+const logger = new Logger('CryptoUtil');
 
 const ALGORITHM = 'aes-256-cbc';
 const IV_LENGTH = 16; // AES block size
@@ -15,7 +18,7 @@ function getEncryptionKey(): Buffer {
     if (nodeEnv === 'prod' || nodeEnv === 'production') {
       throw new Error('ENCRYPTION_SECRET_KEY 환경변수가 설정되지 않았습니다. 프로덕션 환경에서는 필수입니다.');
     }
-    console.warn('[WARNING] ENCRYPTION_SECRET_KEY가 설정되지 않았습니다. 개발 환경에서만 허용됩니다.');
+    logger.warn('[WARNING] ENCRYPTION_SECRET_KEY가 설정되지 않았습니다. 개발 환경에서만 허용됩니다.');
     // 개발 환경에서는 임시 키 사용 (프로덕션에서는 절대 사용 금지)
     return crypto.createHash('sha256').update('dev-only-temp-key').digest();
   }
