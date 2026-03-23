@@ -1,4 +1,4 @@
-import { forwardRef, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -28,14 +28,12 @@ import { ResponseInterceptor } from './interceptors/transform.response.intercept
       isGlobal: true,
       envFilePath: '.env',
     }),
-    forwardRef(() =>
-      RouterModule.register([
-        {
-          path: 'msl',
-          module: MindsSignalModule,
-        },
-      ]),
-    ),
+    RouterModule.register([
+      {
+        path: 'msl',
+        module: MindsSignalModule,
+      },
+    ]),
     Modules,
     PrismaModule,
     SocketModule,
