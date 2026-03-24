@@ -1,6 +1,6 @@
 import { IsArray, IsEnum, IsInt, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { PermissionType } from '../../auth/auth.enum';
+import { PermissionType } from '../permission.enum';
 
 export class PermissionDto {
   @ApiProperty({ description: 'Permission ID' })

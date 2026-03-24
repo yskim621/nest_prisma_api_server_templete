@@ -3,10 +3,6 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Request } from 'express';
 
-export interface Response<T> {
-  data: T;
-}
-
 @Injectable()
 export class EveryInterceptor implements NestInterceptor {
   private readonly logger = new Logger(EveryInterceptor.name);

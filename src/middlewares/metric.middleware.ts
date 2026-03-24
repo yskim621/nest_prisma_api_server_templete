@@ -52,9 +52,9 @@ interface Pm2ProcessDescription {
 
 @Injectable()
 export class Pm2MetricsService {
-  private logger = new Logger('Pm2MetricsService');
-  private prefix = 'pm2';
-  private labels = [
+  private readonly logger = new Logger('Pm2MetricsService');
+  private readonly prefix = 'pm2';
+  private readonly labels = [
     'id',
     'name',
     'instance',
@@ -64,7 +64,7 @@ export class Pm2MetricsService {
     'hostname',
     // 'container_id',
   ];
-  private map = [
+  private readonly map = [
     ['up', 'Is the process running'],
     ['cpu', 'Process cpu usage'],
     ['memory', 'Process memory usage'],

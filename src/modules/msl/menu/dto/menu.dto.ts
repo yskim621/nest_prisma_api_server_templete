@@ -1,6 +1,6 @@
 import { IsEnum, IsInt, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { MenuType } from '../../auth/auth.enum';
+import { MenuType } from '../menu.enum';
 
 export class MenuDto {
   @ApiProperty({ description: 'Menu ID' })

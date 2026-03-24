@@ -35,7 +35,7 @@ interface ValidationErrorResponse {
 
 @Catch(BadRequestException)
 export class ValidationExceptionFilter implements ExceptionFilter<BadRequestException> {
-  private logger = new Logger('ValidationExceptionFilter', { timestamp: true });
+  private readonly logger = new Logger('ValidationExceptionFilter', { timestamp: true });
 
   public catch(exception: BadRequestException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -117,7 +117,7 @@ export class HttpExceptionsFilter implements ExceptionFilter {
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  private logger = new Logger('AllExceptionsFilter', { timestamp: true });
+  private readonly logger = new Logger('AllExceptionsFilter', { timestamp: true });
 
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -196,7 +196,7 @@ const prismaCodeToDbErrType: Record<string, DbErrType> = {
 
 @Catch(QueryException)
 export class PrismaExceptionFilter implements ExceptionFilter {
-  private logger = new Logger('PrismaExceptionFilter', { timestamp: true });
+  private readonly logger = new Logger('PrismaExceptionFilter', { timestamp: true });
 
   async catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
     const ctx = host.switchToHttp();

@@ -5,7 +5,7 @@ export class AppService {
   getHello(): string {
     return 'Hello World!';
   }
-  whois(): string {
+  whois(): string | undefined {
     return process.env.WHOIS;
   }
 }

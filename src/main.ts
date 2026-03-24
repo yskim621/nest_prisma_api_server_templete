@@ -83,7 +83,7 @@ async function bootstrap() {
 
   logger.log(`✅ [ Redis 연결 ] → ${REDIS_HOST}:${REDIS_PORT}`);
 
-  await app.listen(process.env.PORT ?? 4010);
+  await app.listen(PORT);
 
   if (process.env.NODE_ENV !== 'prod') {
     Logger.log(`🚀  Local Server ready at ${SERVICE_DOMAIN}:${PORT}`, 'Bootstrap');

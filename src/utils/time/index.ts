@@ -1,15 +1,13 @@
+const KOREA_TIMEZONE = 'Asia/Seoul';
+
 export const getCurrentTime = (): Date => {
-  const offset = 1000 * 60 * 60 * 9;
-  const koreaNow = new Date(new Date().getTime() + offset);
-  return koreaNow;
+  return new Date(new Date().toLocaleString('en-US', { timeZone: KOREA_TIMEZONE }));
 };
 
 export const changeKoreaTime = (date: Date): Date => {
-  const offset = 1000 * 60 * 60 * 9;
-  const koreaNow = new Date(date.getTime() + offset);
-  return koreaNow;
+  return new Date(date.toLocaleString('en-US', { timeZone: KOREA_TIMEZONE }));
 };
 
-export const delay = (ms: number) => {
+export const delay = (ms: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };

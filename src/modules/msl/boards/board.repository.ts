@@ -97,9 +97,8 @@ export class BoardRepository extends BaseRepository {
           throw new FindOneQueryException();
         }
 
-        if (foundUserData.accountStatus === (AccountStatus.ACTIVE as string)) {
-          const board = await tx.board.findUnique({ where: { id } });
-          return board;
+        if (foundUserData.accountStatus === AccountStatus.ACTIVE) {
+          return await this.findOneOrFail<PrismaBoard>(id);
         }
 
         const updatedBoard = await tx.board.update({
