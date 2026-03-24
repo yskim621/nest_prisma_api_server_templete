@@ -83,7 +83,7 @@ export async function errorHandle(error: unknown, errPath?: string, comSystem: C
       const errorMessage = getErrorMessage(type, errPath);
       await sendNotification('error', 'Internal Server Error', errorMessage, error);
 
-      return getQueryErrRes(type, error);
+      return getQueryErrRes(type);
     }
   }
   for (const [type, ExceptionClass] of Object.entries(clientExceptionMap) as unknown as [ClientErrType, typeof Error][]) {

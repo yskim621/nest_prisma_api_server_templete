@@ -120,7 +120,7 @@ function formatErrorMessage(detail: string, callerLine: string, stack: string) {
   return `${detail} Error Occurred at [${callerLine}] with error: ${stack}`;
 }
 
-export function getQueryErrRes<T>(errType: DbErrType, _error?: Error): CommonResponse<T> {
+export function getQueryErrRes<T>(errType: DbErrType): CommonResponse<T> {
   const { callerLine, stack } = getCallerLine();
   const { code, detail } = dbErrMap[errType] ?? dbErrMap.unknown;
   return {

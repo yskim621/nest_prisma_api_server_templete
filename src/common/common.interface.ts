@@ -1,13 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Pagination } from '../utils/pagination';
-import { HttpStatus } from '@nestjs/common';
 
 export class CommonResponse<T = unknown> {
   /**
    * 2000(성공), 4xxx(클라이언트 에러), 5xxx(서버 에러), 9999(unknown)
    */
   code: string;
-  httpStatus?: HttpStatus;
   isSuccess: boolean;
   message: string;
   resSystem: ResSystem;

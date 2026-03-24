@@ -17,7 +17,7 @@ export class SocketGateway {
   @WebSocketServer()
   server: Server; // socket.io 서버 인스턴스
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   // 클라이언트 연결 시 로그
   handleConnection(client: Socket) {

@@ -5,7 +5,7 @@ import { ComSystem } from '../common.interface';
 
 export class QueryException extends HttpException {
   constructor(type: DbErrType, error?: unknown) {
-    super(getQueryErrRes(type, error instanceof Error ? error : undefined), HttpStatus.INTERNAL_SERVER_ERROR);
+    super(getQueryErrRes(type), HttpStatus.INTERNAL_SERVER_ERROR);
     this.name = 'QueryException';
     this.message = error instanceof Error ? error.message : undefined;
     this.stack = error instanceof Error ? error.stack : undefined;
