@@ -1,11 +1,11 @@
-import { PrismaClient } from '../../../prisma/generated/nest_prisma_template';
+import { PrismaClient } from '../../../prisma/generated/nest_prisma_template/client';
 
 /**
  * Prisma 트랜잭션 클라이언트 타입
  *
  * 트랜잭션 내에서 사용할 수 없는 메서드들을 제외한 타입
  */
-export type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction'>;
+export type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>;
 
 /**
  * 트랜잭션 콜백 함수 타입

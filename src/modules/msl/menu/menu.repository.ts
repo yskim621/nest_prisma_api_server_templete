@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { BaseRepository, PrismaDelegate } from '../../../common/base';
 import { CreateMenuDto, CreateMenuTranslationDto, UpdateMenuDto } from './dto/menu.dto';
-import { Menu, MenuTranslation } from '../../../../prisma/generated/nest_prisma_template';
+import { Menu, MenuTranslation } from '../../../../prisma/generated/nest_prisma_template/client';
 
 type MenuWithTranslations = Menu & { translations: MenuTranslation[] };
 

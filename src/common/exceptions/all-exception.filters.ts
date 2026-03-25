@@ -18,7 +18,7 @@ import { DbErrType } from '../common.type';
 import { getQueryErrRes } from '../common.response';
 import { QueryException, UnauthorizedClientException } from './common.exception';
 import { errorHandle } from './common.error-handler';
-import { Prisma } from 'prisma/generated/nest_prisma_template';
+import { Prisma } from 'prisma/generated/nest_prisma_template/client';
 
 interface PackageJson {
   name: string;

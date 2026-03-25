@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Board as PrismaBoard } from '../../../../prisma/generated/nest_prisma_template';
+import { Board as PrismaBoard } from '../../../../prisma/generated/nest_prisma_template/client';
 import { CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import { BoardRepository } from './board.repository';
 import { UserRepository } from '../user/user.repository';
