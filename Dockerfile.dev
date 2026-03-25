@@ -11,15 +11,17 @@ RUN apk add --no-cache wget
 # 의존성 파일 복사
 COPY package*.json ./
 COPY prisma ./prisma/
+COPY prisma.config.ts ./
+COPY tsconfig.json ./
 
 # 의존성 설치 (devDependencies 포함)
 RUN npm install
 
-# NestJS CLI 전역 설치 (이 줄 추가)
+# NestJS CLI 전역 설치
 RUN npm install -g @nestjs/cli
 
-# Prisma 클라이언트 생성
-RUN npx prisma generate
+# Prisma 클라이언트 생성 (generate는 DB 연결 불필요, dummy URL로 validation 통과)
+RUN PRISMA_DATABASE_URL="mysql://dummy:dummy@localhost:3306/dummy" npx prisma generate
 
 # 로그 디렉토리 생성
 RUN mkdir -p logs dist/logs
@@ -33,4 +35,5 @@ ENV SOCKETPORT=4011
 EXPOSE 4010 4011 9229
 
 # 개발 서버 실행 (watch 모드)
-CMD ["npm", "run", "start:local"]
+# 볼륨 마운트로 prisma/generated가 덮어써지므로 시작 시 재생성
+CMD ["sh", "-c", "npx prisma generate && npm run start:dev"]

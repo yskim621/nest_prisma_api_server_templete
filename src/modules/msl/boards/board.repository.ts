@@ -1,5 +1,5 @@
 import { HttpException, Injectable, Logger } from '@nestjs/common';
-import { Board as PrismaBoard } from '../../../../prisma/generated/nest_prisma_template';
+import { Board as PrismaBoard } from '../../../../prisma/generated/nest_prisma_template/client';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CreateBoardDto, UpdateBoardDto } from './dto/board.dto';
 import { FindOneQueryException } from '../../../common/exceptions/common.exception';
